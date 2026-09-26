@@ -377,21 +377,22 @@ export default function Dashboard({ documents, tasks, categories, onSelectTab })
       {/* 2. BẢNG XẾP HẠNG CÁ NHÂN THEO TỈ LỆ PHẦN TRĂM (%) */}
       <div className="bg-white rounded-2xl shadow-xs border border-emerald-200 overflow-hidden">
         {/* Tab switcher giữa các bảng đánh giá */}
-        <div className="p-4 bg-emerald-50/60 border-b border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Tab switcher giữa các bảng đánh giá */}
+        <div className="p-3 sm:p-4 bg-emerald-50/60 border-b border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-500" /> Bảng Xếp Hạng & Đánh Giá 21 Cán Bộ Địa Bàn
+            <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-500 flex-shrink-0" /> Bảng Xếp Hạng & Đánh Giá 21 Cán Bộ Địa Bàn
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
               Thang xếp loại: <strong>Loại A (≥90%)</strong> • <strong>Loại B (80% - &lt;90%)</strong> • <strong>Loại C (70% - &lt;80%)</strong> • <strong>Loại D (&lt;70%)</strong>
             </p>
           </div>
 
-          <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-emerald-300">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 bg-white p-1 rounded-xl border border-emerald-300">
             <button
               type="button"
               onClick={() => setRankingTab('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 rankingTab === 'all'
                   ? 'bg-[#143e21] text-amber-300 shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100'
@@ -403,214 +404,361 @@ export default function Dashboard({ documents, tasks, categories, onSelectTab })
             <button
               type="button"
               onClick={() => setRankingTab('advisory')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 rankingTab === 'advisory'
                   ? 'bg-blue-700 text-white shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              1) Công Tác Tham Mưu (VB)
+              1) Tham Mưu (VB)
             </button>
 
             <button
               type="button"
               onClick={() => setRankingTab('urging')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 rankingTab === 'urging'
                   ? 'bg-emerald-700 text-white shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              2) Công Tác Đôn Đốc Xã
+              2) Đôn Đốc Xã
             </button>
           </div>
         </div>
 
         {/* ========== BẢNG 1: XẾP HẠNG CÔNG TÁC THAM MƯU ========== */}
         {rankingTab === 'advisory' && (
-          <div className="overflow-x-auto">
-            <div className="p-2.5 bg-blue-50/70 border-b border-blue-200 text-xs text-blue-900 font-semibold flex justify-between items-center">
+          <div>
+            <div className="p-2.5 bg-blue-50/70 border-b border-blue-200 text-xs text-blue-900 font-semibold flex flex-col sm:flex-row justify-between sm:items-center gap-1">
               <span>BẢNG XẾP HẠNG 1: CÔNG TÁC THAM MƯU (THỰC HIỆN VĂN BẢN ĐƯỢC GIAO)</span>
               <span className="text-[11px] text-blue-700 font-normal">Đánh giá theo Tỉ lệ phần trăm (%) hoàn thành đúng hạn</span>
             </div>
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#143e21] text-white font-semibold">
-                  <th className="py-2.5 px-3 text-center w-12">Hạng</th>
-                  <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
-                  <th className="py-2.5 px-3 min-w-[200px]">Địa Bàn Phụ Trách</th>
-                  <th className="py-2.5 px-3 text-center min-w-[110px]">VB Được Giao</th>
-                  <th className="py-2.5 px-3 text-center min-w-[130px]">Hoàn Thành Đúng Hạn</th>
-                  <th className="py-2.5 px-3 text-center min-w-[90px]">Quá Hạn</th>
-                  <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt (%)</th>
-                  <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Tham Mưu</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {advisoryRankings.map((officer, idx) => (
-                  <tr key={officer.id} className="hover:bg-blue-50/40">
-                    <td className="py-2.5 px-3 text-center font-bold">
-                      {idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
-                    </td>
-                    <td className="py-2.5 px-3 font-bold text-slate-900">
-                      {officer.name}
-                      <span className="block text-[10px] text-slate-500 font-normal">{officer.rank}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-600">
-                      {officer.communes.slice(0, 3).join(', ')}...
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-semibold">{officer.myDocsCount} VB</td>
-                    <td className="py-2.5 px-3 text-center font-mono text-emerald-700 font-bold">{officer.docsDone} VB</td>
-                    <td className="py-2.5 px-3 text-center font-mono">
-                      {officer.docsOverdue > 0 ? (
-                        <span className="text-red-600 font-bold">{officer.docsOverdue}</span>
-                      ) : (
-                        <span className="text-slate-400">0</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-bold text-blue-900 text-sm">
-                      {officer.advisoryPercentage}%
-                    </td>
-                    <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                      <span className={`px-2.5 py-0.5 rounded-full border text-[11px] inline-block ${officer.advisoryBadge}`}>
-                        {officer.advisoryGrade}
+
+            {/* Mobile Card View (block md:hidden) */}
+            <div className="block md:hidden divide-y divide-blue-100">
+              {advisoryRankings.map((officer, idx) => (
+                <div key={officer.id} className="p-3 space-y-2 bg-white">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 font-bold text-xs flex items-center justify-center font-mono">
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
                       </span>
-                    </td>
+                      <div>
+                        <div className="font-bold text-slate-900 text-xs sm:text-sm">{officer.name}</div>
+                        <div className="text-[10px] text-slate-500">{officer.rank} • {officer.communes.slice(0, 2).join(', ')}...</div>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full border text-[10.5px] font-bold ${officer.advisoryBadge}`}>
+                      {officer.advisoryGrade}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] bg-blue-50/50 p-2 rounded-xl border border-blue-200">
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Được giao</span>
+                      <span className="font-bold font-mono text-slate-800">{officer.myDocsCount} VB</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Đúng hạn</span>
+                      <span className="font-bold font-mono text-emerald-700">{officer.docsDone} VB</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Quá hạn</span>
+                      <span className={`font-bold font-mono ${officer.docsOverdue > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+                        {officer.docsOverdue}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <span className="text-slate-500 text-[11px]">Tỉ lệ đạt tham mưu:</span>
+                    <span className="font-mono font-bold text-blue-900 text-sm">{officer.advisoryPercentage}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#143e21] text-white font-semibold">
+                    <th className="py-2.5 px-3 text-center w-12">Hạng</th>
+                    <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
+                    <th className="py-2.5 px-3 min-w-[200px]">Địa Bàn Phụ Trách</th>
+                    <th className="py-2.5 px-3 text-center min-w-[110px]">VB Được Giao</th>
+                    <th className="py-2.5 px-3 text-center min-w-[130px]">Hoàn Thành Đúng Hạn</th>
+                    <th className="py-2.5 px-3 text-center min-w-[90px]">Quá Hạn</th>
+                    <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt (%)</th>
+                    <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Tham Mưu</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {advisoryRankings.map((officer, idx) => (
+                    <tr key={officer.id} className="hover:bg-blue-50/40">
+                      <td className="py-2.5 px-3 text-center font-bold">
+                        {idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-slate-900">
+                        {officer.name}
+                        <span className="block text-[10px] text-slate-500 font-normal">{officer.rank}</span>
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-600">
+                        {officer.communes.slice(0, 3).join(', ')}...
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-mono font-semibold">{officer.myDocsCount} VB</td>
+                      <td className="py-2.5 px-3 text-center font-mono text-emerald-700 font-bold">{officer.docsDone} VB</td>
+                      <td className="py-2.5 px-3 text-center font-mono">
+                        {officer.docsOverdue > 0 ? (
+                          <span className="text-red-600 font-bold">{officer.docsOverdue}</span>
+                        ) : (
+                          <span className="text-slate-400">0</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-mono font-bold text-blue-900 text-sm">
+                        {officer.advisoryPercentage}%
+                      </td>
+                      <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                        <span className={`px-2.5 py-0.5 rounded-full border text-[11px] inline-block ${officer.advisoryBadge}`}>
+                          {officer.advisoryGrade}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {/* ========== BẢNG 2: XẾP HẠNG CÔNG TÁC ĐÔN ĐỐC XÃ ========== */}
         {rankingTab === 'urging' && (
-          <div className="overflow-x-auto">
-            <div className="p-2.5 bg-emerald-50/70 border-b border-emerald-200 text-xs text-emerald-900 font-semibold flex justify-between items-center">
+          <div>
+            <div className="p-2.5 bg-emerald-50/70 border-b border-emerald-200 text-xs text-emerald-900 font-semibold flex flex-col sm:flex-row justify-between sm:items-center gap-1">
               <span>BẢNG XẾP HẠNG 2: CÔNG TÁC ĐÔN ĐỐC, THEO DÕI CÔNG AN CẤP XÃ</span>
               <span className="text-[11px] text-emerald-700 font-normal">Đánh giá theo Tỉ lệ phần trăm (%) các xã hoàn thành chỉ tiêu</span>
             </div>
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#143e21] text-white font-semibold">
-                  <th className="py-2.5 px-3 text-center w-12">Hạng</th>
-                  <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
-                  <th className="py-2.5 px-3 min-w-[200px]">Địa Bàn Phụ Trách</th>
-                  <th className="py-2.5 px-3 text-center min-w-[110px]">Nhiệm Vụ Giao</th>
-                  <th className="py-2.5 px-3 text-center min-w-[140px]">Số Lượt Xã Đạt Chỉ Tiêu</th>
-                  <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt (%)</th>
-                  <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Đôn Đốc</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {urgingRankings.map((officer, idx) => (
-                  <tr key={officer.id} className="hover:bg-emerald-50/40">
-                    <td className="py-2.5 px-3 text-center font-bold">
-                      {idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
-                    </td>
-                    <td className="py-2.5 px-3 font-bold text-slate-900">
-                      {officer.name}
-                      <span className="block text-[10px] text-slate-500 font-normal">{officer.rank}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-600">
-                      {officer.communes.slice(0, 3).join(', ')}... ({officer.communes.length} xã)
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-semibold">{officer.tasksAssignedCount} chuyên đề</td>
-                    <td className="py-2.5 px-3 text-center font-mono text-emerald-700 font-bold">
-                      {officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} lượt xã
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-bold text-emerald-900 text-sm">
-                      {officer.urgingPercentage}%
-                    </td>
-                    <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                      <span className={`px-2.5 py-0.5 rounded-full border text-[11px] inline-block ${officer.urgingBadge}`}>
-                        {officer.urgingGrade}
+
+            {/* Mobile Card View (block md:hidden) */}
+            <div className="block md:hidden divide-y divide-emerald-100">
+              {urgingRankings.map((officer, idx) => (
+                <div key={officer.id} className="p-3 space-y-2 bg-white">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-900 font-bold text-xs flex items-center justify-center font-mono">
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
                       </span>
-                    </td>
+                      <div>
+                        <div className="font-bold text-slate-900 text-xs sm:text-sm">{officer.name}</div>
+                        <div className="text-[10px] text-slate-500">{officer.rank} • {officer.communes.length} xã</div>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full border text-[10.5px] font-bold ${officer.urgingBadge}`}>
+                      {officer.urgingGrade}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 text-center text-[11px] bg-emerald-50/50 p-2 rounded-xl border border-emerald-200">
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Nhiệm vụ giao</span>
+                      <span className="font-bold font-mono text-slate-800">{officer.tasksAssignedCount} chuyên đề</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Lượt xã đạt chỉ tiêu</span>
+                      <span className="font-bold font-mono text-emerald-700">
+                        {officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} lượt xã
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <span className="text-slate-500 text-[11px]">Tỉ lệ đạt đôn đốc:</span>
+                    <span className="font-mono font-bold text-emerald-900 text-sm">{officer.urgingPercentage}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#143e21] text-white font-semibold">
+                    <th className="py-2.5 px-3 text-center w-12">Hạng</th>
+                    <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
+                    <th className="py-2.5 px-3 min-w-[200px]">Địa Bàn Phụ Trách</th>
+                    <th className="py-2.5 px-3 text-center min-w-[110px]">Nhiệm Vụ Giao</th>
+                    <th className="py-2.5 px-3 text-center min-w-[140px]">Số Lượt Xã Đạt Chỉ Tiêu</th>
+                    <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt (%)</th>
+                    <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Đôn Đốc</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {urgingRankings.map((officer, idx) => (
+                    <tr key={officer.id} className="hover:bg-emerald-50/40">
+                      <td className="py-2.5 px-3 text-center font-bold">
+                        {idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-slate-900">
+                        {officer.name}
+                        <span className="block text-[10px] text-slate-500 font-normal">{officer.rank}</span>
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-600">
+                        {officer.communes.slice(0, 3).join(', ')}... ({officer.communes.length} xã)
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-mono font-semibold">{officer.tasksAssignedCount} chuyên đề</td>
+                      <td className="py-2.5 px-3 text-center font-mono text-emerald-700 font-bold">
+                        {officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} lượt xã
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-mono font-bold text-emerald-900 text-sm">
+                        {officer.urgingPercentage}%
+                      </td>
+                      <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                        <span className={`px-2.5 py-0.5 rounded-full border text-[11px] inline-block ${officer.urgingBadge}`}>
+                          {officer.urgingGrade}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {/* ========== BẢNG TỔNG HỢP SONG SONG CẢ 2 MẶT CÔNG TÁC ========== */}
         {rankingTab === 'all' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#143e21] text-white font-semibold">
-                  <th className="py-3 px-2.5 text-center w-12">Hạng</th>
-                  <th className="py-3 px-2.5 min-w-[150px]">Cán Bộ Địa Bàn</th>
-                  <th className="py-3 px-2.5 min-w-[180px]">Địa Bàn Phụ Trách</th>
-                  <th className="py-3 px-2.5 text-center min-w-[150px] bg-[#1a4a27]">
-                    1) Công Tác Tham Mưu (VB)
-                  </th>
-                  <th className="py-3 px-2.5 text-center min-w-[150px] bg-[#1e5830]">
-                    2) Công Tác Đôn Đốc Xã
-                  </th>
-                  <th className="py-3 px-2.5 text-center min-w-[100px]">Tỉ Lệ Tổng (%)</th>
-                  <th className="py-3 px-2.5 text-center min-w-[130px]">Xếp Loại Chung</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {overallRankings.map((officer, index) => {
-                  const rank = index + 1;
-                  return (
-                    <tr key={officer.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-2.5 text-center font-bold">
-                        {rank === 1 ? '🥇 1' : rank === 2 ? '🥈 2' : rank === 3 ? '🥉 3' : rank}
-                      </td>
-
-                      <td className="py-2.5 px-2.5">
-                        <div className="font-bold text-slate-900">{officer.name}</div>
-                        <div className="text-[10px] text-slate-500">{officer.rank}</div>
-                      </td>
-
-                      <td className="py-2.5 px-2.5">
-                        <div className="text-[11px] text-slate-700">
-                          {officer.communes.slice(0, 3).join(', ')}...
+          <div>
+            {/* Mobile Card View (block md:hidden) */}
+            <div className="block md:hidden divide-y divide-emerald-100">
+              {overallRankings.map((officer, index) => {
+                const rank = index + 1;
+                return (
+                  <div key={officer.id} className="p-3.5 space-y-2.5 bg-white">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-full bg-[#143e21] text-amber-300 font-bold text-xs flex items-center justify-center font-mono shadow-xs flex-shrink-0">
+                          {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`}
+                        </span>
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">{officer.name}</div>
+                          <div className="text-[10px] text-slate-500">{officer.rank} • ({officer.communes.length} xã/phường)</div>
                         </div>
-                        <span className="text-[10px] text-emerald-800 font-semibold font-mono">({officer.communes.length} xã/phường)</span>
-                      </td>
+                      </div>
+                      <span className={`px-2.5 py-0.5 rounded-full border text-[10.5px] font-bold ${officer.overallBadge}`}>
+                        {officer.overallGrade}
+                      </span>
+                    </div>
 
-                      {/* Đánh giá riêng 1: Tham mưu */}
-                      <td className="py-2.5 px-2.5 text-center bg-blue-50/40 font-mono">
-                        <div className="font-bold text-blue-900">{officer.advisoryPercentage}% ({officer.docsDone}/{officer.myDocsCount} VB)</div>
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] border mt-0.5 ${officer.advisoryBadge}`}>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      {/* Tham mưu */}
+                      <div className="p-2 rounded-xl bg-blue-50/70 border border-blue-200">
+                        <div className="text-[10px] text-blue-900 font-bold uppercase">1. Tham mưu (VB)</div>
+                        <div className="font-mono font-bold text-blue-900 text-xs mt-0.5">{officer.advisoryPercentage}%</div>
+                        <div className="text-[10px] text-slate-500">({officer.docsDone}/{officer.myDocsCount} VB đúng hạn)</div>
+                        <span className={`inline-block px-1.5 py-0.2 rounded text-[9.5px] border mt-1 ${officer.advisoryBadge}`}>
                           {officer.advisoryShortGrade}
                         </span>
-                      </td>
+                      </div>
 
-                      {/* Đánh giá riêng 2: Đôn đốc xã */}
-                      <td className="py-2.5 px-2.5 text-center bg-emerald-50/40 font-mono">
-                        <div className="font-bold text-emerald-900">{officer.urgingPercentage}% ({officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} xã)</div>
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] border mt-0.5 ${officer.urgingBadge}`}>
+                      {/* Đôn đốc */}
+                      <div className="p-2 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                        <div className="text-[10px] text-emerald-900 font-bold uppercase">2. Đôn đốc xã</div>
+                        <div className="font-mono font-bold text-emerald-900 text-xs mt-0.5">{officer.urgingPercentage}%</div>
+                        <div className="text-[10px] text-slate-500">({officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} lượt xã)</div>
+                        <span className={`inline-block px-1.5 py-0.2 rounded text-[9.5px] border mt-1 ${officer.urgingBadge}`}>
                           {officer.urgingShortGrade}
                         </span>
-                      </td>
+                      </div>
+                    </div>
 
-                      {/* Tỉ lệ phần trăm tổng hợp */}
-                      <td className="py-2.5 px-2.5 text-center font-mono font-bold text-slate-900 text-sm">
-                        {officer.overallPercentage}%
-                      </td>
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                      <span className="text-slate-600 font-medium">Tỉ lệ tổng hợp cả 2 mặt:</span>
+                      <span className="font-mono font-bold text-slate-900 text-base">{officer.overallPercentage}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-                      {/* Xếp loại thi đua chung */}
-                      <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
-                        <span className={`inline-block px-2.5 py-1 text-xs rounded-full border shadow-2xs ${officer.overallBadge}`}>
-                          {officer.overallGrade}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {/* Desktop Table View (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#143e21] text-white font-semibold">
+                    <th className="py-3 px-2.5 text-center w-12">Hạng</th>
+                    <th className="py-3 px-2.5 min-w-[150px]">Cán Bộ Địa Bàn</th>
+                    <th className="py-3 px-2.5 min-w-[180px]">Địa Bàn Phụ Trách</th>
+                    <th className="py-3 px-2.5 text-center min-w-[150px] bg-[#1a4a27]">
+                      1) Công Tác Tham Mưu (VB)
+                    </th>
+                    <th className="py-3 px-2.5 text-center min-w-[150px] bg-[#1e5830]">
+                      2) Công Tác Đôn Đốc Xã
+                    </th>
+                    <th className="py-3 px-2.5 text-center min-w-[100px]">Tỉ Lệ Tổng (%)</th>
+                    <th className="py-3 px-2.5 text-center min-w-[130px]">Xếp Loại Chung</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {overallRankings.map((officer, index) => {
+                    const rank = index + 1;
+                    return (
+                      <tr key={officer.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-2.5 px-2.5 text-center font-bold">
+                          {rank === 1 ? '🥇 1' : rank === 2 ? '🥈 2' : rank === 3 ? '🥉 3' : rank}
+                        </td>
+
+                        <td className="py-2.5 px-2.5">
+                          <div className="font-bold text-slate-900">{officer.name}</div>
+                          <div className="text-[10px] text-slate-500">{officer.rank}</div>
+                        </td>
+
+                        <td className="py-2.5 px-2.5">
+                          <div className="text-[11px] text-slate-700">
+                            {officer.communes.slice(0, 3).join(', ')}...
+                          </div>
+                          <span className="text-[10px] text-emerald-800 font-semibold font-mono">({officer.communes.length} xã/phường)</span>
+                        </td>
+
+                        {/* Đánh giá riêng 1: Tham mưu */}
+                        <td className="py-2.5 px-2.5 text-center bg-blue-50/40 font-mono">
+                          <div className="font-bold text-blue-900">{officer.advisoryPercentage}% ({officer.docsDone}/{officer.myDocsCount} VB)</div>
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] border mt-0.5 ${officer.advisoryBadge}`}>
+                            {officer.advisoryShortGrade}
+                          </span>
+                        </td>
+
+                        {/* Đánh giá riêng 2: Đôn đốc xã */}
+                        <td className="py-2.5 px-2.5 text-center bg-emerald-50/40 font-mono">
+                          <div className="font-bold text-emerald-900">{officer.urgingPercentage}% ({officer.totalCommunesDoneCount}/{officer.totalCommunesAssignedCount} xã)</div>
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] border mt-0.5 ${officer.urgingBadge}`}>
+                            {officer.urgingShortGrade}
+                          </span>
+                        </td>
+
+                        {/* Tỉ lệ phần trăm tổng hợp */}
+                        <td className="py-2.5 px-2.5 text-center font-mono font-bold text-slate-900 text-sm">
+                          {officer.overallPercentage}%
+                        </td>
+
+                        {/* Xếp loại thi đua chung */}
+                        <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
+                          <span className={`inline-block px-2.5 py-1 text-xs rounded-full border shadow-2xs ${officer.overallBadge}`}>
+                            {officer.overallGrade}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span>
+          <span className="text-center sm:text-left">
             Quy chuẩn xếp loại: <strong>Loại A (≥90%)</strong>; <strong>Loại B (80% đến dưới 90%)</strong>; <strong>Loại C (70% đến dưới 80%)</strong>; <strong>Loại D (dưới 70%)</strong>.
           </span>
           <button

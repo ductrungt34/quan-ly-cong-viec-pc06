@@ -135,7 +135,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f7f4] flex flex-col font-sans antialiased text-slate-800 w-full">
+    <div className="min-h-screen bg-[#f3f7f4] flex flex-col font-serif antialiased text-slate-900 w-full overflow-x-hidden">
       {/* Header */}
       <Header
         currentUser={currentUser}

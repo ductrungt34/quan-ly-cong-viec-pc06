@@ -3,11 +3,40 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-family: 'Times New Roman', 'Times', 'Tinos', 'Noto Serif', serif;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-[#f3f7f4] text-slate-800 antialiased;
-    font-family: 'Inter', 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    @apply bg-[#f3f7f4] text-slate-900 antialiased;
+    font-family: 'Times New Roman', 'Times', 'Tinos', 'Noto Serif', serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
   }
 }
+
+/* Ẩn thanh cuộn ngang trên điện thoại nhưng vẫn cho phép vuốt mượt mà */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Đảm bảo bảng không bị tràn khung trên mobile */
+.mobile-touch-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mobile-touch-card:active {
+  transform: scale(0.99);
+}
+
 
 /* Custom Print styles for reports & tables */
 @media print {

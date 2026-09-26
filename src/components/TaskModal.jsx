@@ -140,17 +140,17 @@ export default function TaskModal({ isOpen, onClose, onSave, categories, current
   const assignedOfficers = getAssignedOfficersList();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-slate-900/70 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-emerald-300 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-emerald-300 animate-in fade-in zoom-in-95 duration-200 max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="bg-[#143e21] text-white px-5 py-3.5 flex items-center justify-between border-b border-[#286f3b]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-lime-500/20 rounded-lg text-lime-300">
-              <CheckSquare className="w-5 h-5" />
+        <div className="bg-[#143e21] text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between border-b border-[#286f3b] flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 bg-lime-500/20 rounded-lg text-lime-300 flex-shrink-0">
+              <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold">Giao Nhiệm Vụ Đôn Đốc Công An Cấp Xã</h2>
-              <p className="text-xs text-lime-200">Tùy biến phân công theo cán bộ và địa bàn xã/phường cụ thể</p>
+              <h2 className="text-sm sm:text-base font-bold leading-tight">Giao Nhiệm Vụ Đôn Đốc Công An Cấp Xã</h2>
+              <p className="text-[10px] sm:text-xs text-lime-200">Tùy biến phân công theo cán bộ và địa bàn xã/phường cụ thể</p>
             </div>
           </div>
           <button
@@ -163,8 +163,8 @@ export default function TaskModal({ isOpen, onClose, onSave, categories, current
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit}>
-          <div className="p-5 space-y-3.5 max-h-[78vh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="p-3.5 sm:p-5 space-y-3.5 overflow-y-auto text-xs flex-1">
             {errorMsg && (
               <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />

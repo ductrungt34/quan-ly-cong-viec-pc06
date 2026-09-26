@@ -39,17 +39,17 @@ export default function DocumentResultModal({ isOpen, onClose, onSaveResult, doc
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200 max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="bg-emerald-900 text-white px-6 py-4 flex items-center justify-between border-b border-emerald-800">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-700/50 rounded-lg text-emerald-200">
-              <CheckCircle2 className="w-5 h-5" />
+        <div className="bg-emerald-900 text-white px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-emerald-800 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 bg-emerald-700/50 rounded-lg text-emerald-200 flex-shrink-0">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold">Cập Nhật Kết Quả Thực Hiện Văn Bản</h2>
-              <p className="text-xs text-emerald-200">Chốt trạng thái "Đã hoàn thành" khi có văn bản kết quả</p>
+              <h2 className="text-sm sm:text-base font-bold leading-tight">Cập Nhật Kết Quả Thực Hiện Văn Bản</h2>
+              <p className="text-[10px] sm:text-xs text-emerald-200">Chốt trạng thái "Đã hoàn thành" khi có văn bản kết quả</p>
             </div>
           </div>
           <button
@@ -62,8 +62,8 @@ export default function DocumentResultModal({ isOpen, onClose, onSaveResult, doc
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
             {/* Info summary */}
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
               <div className="flex items-center justify-between">

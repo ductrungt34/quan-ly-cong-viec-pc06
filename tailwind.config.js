@@ -15,9 +15,11 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
+        sans: ['"Times New Roman"', 'Times', 'Tinos', '"Noto Serif"', 'serif'],
+        serif: ['"Times New Roman"', 'Times', 'Tinos', '"Noto Serif"', 'serif'],
       }
     },
   },
   plugins: [],
 }
+

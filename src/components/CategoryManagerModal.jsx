@@ -75,17 +75,17 @@ export default function CategoryManagerModal({ isOpen, onClose, categories, onSa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200 max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="bg-[#143e21] text-white px-6 py-4 flex items-center justify-between border-b border-[#286f3b]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-lime-500/20 rounded-lg text-lime-300">
-              <Tag className="w-5 h-5" />
+        <div className="bg-[#143e21] text-white px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-[#286f3b] flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 bg-lime-500/20 rounded-lg text-lime-300 flex-shrink-0">
+              <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold">Quản Lý Danh Mục Lĩnh Vực</h2>
-              <p className="text-xs text-slate-400">Thêm, sửa, xóa các lĩnh vực quản lý chuyên đề</p>
+              <h2 className="text-sm sm:text-base font-bold leading-tight">Quản Lý Danh Mục Lĩnh Vực</h2>
+              <p className="text-[10px] sm:text-xs text-lime-200/80">Thêm, sửa, xóa các lĩnh vực quản lý chuyên đề</p>
             </div>
           </div>
           <button
@@ -98,7 +98,7 @@ export default function CategoryManagerModal({ isOpen, onClose, categories, onSa
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
           {/* Add Category Form */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">

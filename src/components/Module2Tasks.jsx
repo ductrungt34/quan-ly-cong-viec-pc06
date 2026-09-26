@@ -292,17 +292,110 @@ export default function Module2Tasks({
 
                 {/* BẢNG CHI TIẾT THỰC HIỆN CỦA TỪNG CÁN BỘ (CHỈ HIỂN THỊ KHI BẤM NÚT XEM CHI TIẾT) */}
                 {isExpanded && (
-                  <div className="bg-emerald-50/50 p-4 rounded-b-2xl border-t border-emerald-200 animate-in fade-in duration-200">
+                  <div className="bg-emerald-50/50 p-3 sm:p-4 rounded-b-2xl border-t border-emerald-200 animate-in fade-in duration-200">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2.5">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#143e21] flex items-center gap-1.5">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700" /> Bảng Chi Tiết Tiến Độ Thực Hiện Của Các Cán Bộ Địa Bàn
+                        <ShieldCheck className="w-4 h-4 text-emerald-700 flex-shrink-0" /> Bảng Chi Tiết Tiến Độ Thực Hiện Của Các Cán Bộ Địa Bàn
                       </h4>
-                      <span className="text-[11px] text-slate-500 italic">
+                      <span className="text-[10px] sm:text-[11px] text-slate-500 italic">
                         * Quá hạn mà không đôn đốc sẽ khóa quyền sửa và hiển thị trạng thái "Chưa đôn đốc".
                       </span>
                     </div>
 
-                    <div className="overflow-x-auto bg-white rounded-xl border border-emerald-200 shadow-2xs">
+                    {/* GIAO DIỆN DẠNG THẺ CHO MÀN HÌNH ĐIỆN THOẠI (block md:hidden) */}
+                    <div className="block md:hidden divide-y divide-emerald-100 bg-white rounded-xl border border-emerald-200 shadow-2xs overflow-hidden">
+                      {assignedList.map((officer, idx) => {
+                        const statusInfo = computeTaskOfficerStatus(task, officer);
+                        const sub = statusInfo.submission;
+                        const isMe = officer.id === currentUser.id;
+                        const breakdown = statusInfo.communeBreakdown || {};
+                        
+                        const communesAssigned = (task.assignedCommunes && task.assignedCommunes[officer.id]) 
+                          ? task.assignedCommunes[officer.id] 
+                          : officer.communes;
+
+                        return (
+                          <div key={officer.id} className={`p-3 space-y-2 ${isMe ? 'bg-amber-50/40' : ''}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                                  <span>{idx + 1}. {officer.name}</span>
+                                  {isMe && <span className="text-amber-800 text-[10px] font-bold bg-amber-100 px-1 rounded">(Bạn)</span>}
+                                </div>
+                                <div className="text-[10px] text-slate-500">{officer.rank} • {officer.position}</div>
+                              </div>
+                              <span className={`px-2 py-0.5 text-[10.5px] rounded-full border shadow-2xs whitespace-nowrap ${statusInfo.badgeClass}`}>
+                                {statusInfo.status}
+                              </span>
+                            </div>
+
+                            {/* Danh sách xã */}
+                            <div className="space-y-1">
+                              <div className="text-[10px] text-slate-500 font-semibold">
+                                Địa bàn đôn đốc ({statusInfo.completedCommunesCount}/{communesAssigned.length} xã hoàn thành):
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {communesAssigned.map((communeName, cIdx) => {
+                                  const cInfo = breakdown[communeName] || {};
+                                  const isDone = cInfo.status === 'Đã hoàn thành';
+                                  const isInProgress = cInfo.status === 'Đang thực hiện';
+
+                                  return (
+                                    <span
+                                      key={cIdx}
+                                      className={`px-1.5 py-0.5 rounded text-[10px] border ${
+                                        isDone
+                                          ? 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold'
+                                          : isInProgress
+                                          ? 'bg-blue-100 text-blue-950 border-blue-300 font-medium'
+                                          : 'bg-rose-100 text-rose-950 border-rose-300 font-bold'
+                                      }`}
+                                    >
+                                      {communeName} ({isDone ? 'Xong' : isInProgress ? 'Đang làm' : 'Chưa'})
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Báo cáo nếu có */}
+                            {sub?.notes && (
+                              <p className="text-[11px] text-slate-700 italic bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                "{sub.notes}"
+                              </p>
+                            )}
+                            {sub?.attachmentName && (
+                              <div className="flex items-center gap-1 text-blue-700 font-mono text-[10px]">
+                                <Paperclip className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate">{sub.attachmentName}</span>
+                              </div>
+                            )}
+
+                            {/* Nút bấm thao tác */}
+                            {(isAdmin || isMe) && (
+                              <div className="pt-1 flex justify-end">
+                                {statusInfo.isLocked && !isAdmin ? (
+                                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1">
+                                    <Lock className="w-3 h-3" /> Đã khóa (Quá hạn chưa đôn đốc)
+                                  </span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => onOpenSubmissionModal(task, officer.id)}
+                                    className="py-1 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-2xs"
+                                  >
+                                    <span>{sub?.urgingStatus ? 'Chỉnh sửa kết quả' : 'Cập nhật đôn đốc'}</span>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* GIAO DIỆN BẢNG ĐẦY ĐỦ TRÊN MÁY TÍNH (hidden md:block) */}
+                    <div className="hidden md:block overflow-x-auto bg-white rounded-xl border border-emerald-200 shadow-2xs">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="bg-[#143e21] text-white font-semibold">

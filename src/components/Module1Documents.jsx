@@ -132,13 +132,15 @@ export default function Module1Documents({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-emerald-100 pb-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="bg-[#194c29] text-amber-300 font-bold px-2 py-0.5 rounded text-xs">
+              <span className="bg-[#194c29] text-amber-300 font-bold px-2 py-0.5 rounded text-xs flex-shrink-0">
                 Module 1
               </span>
-              <h2 className="text-lg md:text-xl font-bold text-slate-900">Bảng Theo Dõi Văn Bản Hàng Ngày (Mở Rộng Toàn Màn Hình)</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 leading-tight">
+                Bảng Theo Dõi Văn Bản Hàng Ngày
+              </h2>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Tự động tính toán hạn xử lý, cảnh báo sắp hết hạn, mở rộng bao quát 2 bên không phải cuộn ngang.
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-1">
+              Tự động tính toán hạn xử lý, cảnh báo sắp hết hạn, hỗ trợ giao diện tối ưu trên cả điện thoại và máy tính.
             </p>
           </div>
 
@@ -372,9 +374,152 @@ export default function Module1Documents({
         </div>
       </div>
 
-      {/* BẢNG DỮ LIỆU TOÀN MÀN HÌNH - KHÔNG CẦN CUỘN NGANG */}
+      {/* BẢNG DỮ LIỆU TOÀN MÀN HÌNH - TỐI ƯU CẢ TRÊN ĐIỆN THOẠI VÀ MÁY TÍNH */}
       <div className="bg-white rounded-2xl shadow-xs border border-emerald-200 overflow-hidden w-full">
-        <div className="w-full overflow-x-auto">
+        {/* GIAO DIỆN DẠNG THẺ CHO MÀN HÌNH ĐIỆN THOẠI (DƯỚI 768PX) */}
+        <div className="block md:hidden divide-y divide-emerald-100">
+          {filteredDocs.length === 0 ? (
+            <div className="p-8 text-center text-slate-400">
+              Không tìm thấy văn bản phù hợp.
+            </div>
+          ) : (
+            filteredDocs.map((doc, index) => {
+              const isAssignedToCurrentUser = doc.officerId === currentUser.id;
+              const canEdit = isAdmin || isAssignedToCurrentUser;
+
+              return (
+                <div 
+                  key={doc.id} 
+                  className={`p-3.5 space-y-2.5 transition-colors ${
+                    doc.computedStatus === 'Sắp hết hạn' ? 'bg-amber-50/50' : ''
+                  } ${
+                    doc.computedStatus === 'Đã hết hạn' ? 'bg-rose-50/50' : ''
+                  }`}
+                >
+                  {/* Header Card: STT, Số VB, Trạng thái, Lĩnh vực */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center font-mono">
+                        {index + 1}
+                      </span>
+                      <span className="font-bold text-slate-900 font-mono text-xs sm:text-sm">
+                        {doc.docNumber}
+                      </span>
+                      <span className={`px-2 py-0.5 text-[10px] rounded-md border tracking-tight ${doc.categoryBadgeClass}`}>
+                        {doc.category}
+                      </span>
+                    </div>
+                    <span className={`px-2.5 py-0.5 text-[10.5px] font-semibold rounded-full border shadow-2xs whitespace-nowrap ${doc.statusBadgeClass}`}>
+                      {doc.computedStatus}
+                    </span>
+                  </div>
+
+                  {/* Trích yếu nội dung */}
+                  <p className="text-xs sm:text-sm text-slate-800 leading-snug font-medium">
+                    {doc.excerpt}
+                  </p>
+
+                  {/* Thông tin metadata 2 cột */}
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Cán bộ thực hiện:</span>
+                      <span className="font-bold text-slate-900">{doc.officerName}</span>
+                      {doc.officerCommunes && doc.officerCommunes.length > 0 && (
+                        <span className="text-emerald-800 text-[10px] block truncate">
+                          ({doc.officerCommunes.slice(0, 2).join(', ')}...)
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Hạn xử lý:</span>
+                      {doc.isTrackingOnly ? (
+                        <span className="text-slate-600 font-medium">Văn bản theo dõi</span>
+                      ) : (
+                        <div>
+                          <span className="font-mono font-bold text-slate-900">{formatDateVN(doc.deadlineDate)}</span>
+                          {doc.computedStatus !== 'Đã hoàn thành' && doc.daysRemaining !== null && (
+                            <span className="block text-[10px]">
+                              {doc.daysRemaining < 0 ? (
+                                <span className="text-red-700 font-bold">Quá {Math.abs(doc.daysRemaining)} ngày</span>
+                              ) : doc.daysRemaining === 0 ? (
+                                <span className="text-amber-800 font-bold">Hôm nay đến hạn!</span>
+                              ) : (
+                                <span className="text-amber-800 font-medium">Còn {doc.daysRemaining} ngày</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Ngày văn bản:</span>
+                      <span className="font-mono text-slate-800">{formatDateVN(doc.docDate)}</span>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Ngày nhận:</span>
+                      <span className="font-mono text-slate-800">{formatDateVN(doc.receivedDate)}</span>
+                    </div>
+                  </div>
+
+                  {/* Kết quả tham mưu nếu có */}
+                  {doc.resultDocNumber || doc.resultExcerpt ? (
+                    <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-300 text-xs">
+                      <div className="font-bold text-emerald-950 font-mono text-[11px] flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" />
+                        <span>Kết quả: {doc.resultDocNumber} {doc.resultDocDate ? `(${formatDateVN(doc.resultDocDate)})` : ''}</span>
+                      </div>
+                      {doc.resultExcerpt && (
+                        <p className="text-emerald-900 text-[11px] italic mt-0.5">{doc.resultExcerpt}</p>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {/* Hàng nút bấm thao tác trên Mobile */}
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onOpenResultModal(doc)}
+                      className="flex-1 py-1.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{doc.resultDocNumber ? 'Cập nhật kết quả' : 'Nhập kết quả tham mưu'}</span>
+                    </button>
+
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEditDocument(doc)}
+                        className="py-1.5 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold flex items-center gap-1"
+                        title="Sửa"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Sửa</span>
+                      </button>
+                    )}
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteDocument(doc.id)}
+                        className="py-1.5 px-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold flex items-center gap-1"
+                        title="Xóa"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Xóa</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* GIAO DIỆN BẢNG ĐẦY ĐỦ TRÊN MÁY TÍNH & MÁY TÍNH BẢNG (md:block) */}
+        <div className="hidden md:block w-full overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse table-auto">
             <thead>
               <tr className="bg-[#143e21] text-white font-semibold border-b border-[#286f3b]">
@@ -590,15 +735,16 @@ export default function Module1Documents({
           </table>
         </div>
 
-        <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-1 text-xs text-slate-500">
           <div>
             Hiển thị <strong>{filteredDocs.length}</strong> / <strong>{processedDocs.length}</strong> văn bản
           </div>
-          <div className="text-[11px] text-slate-400">
-            * Bảng được tối ưu hóa toàn màn hình giúp theo dõi thuận tiện, không cần thanh cuộn ngang.
+          <div className="text-[11px] text-slate-400 text-center sm:text-right">
+            * Bảng được tối ưu hóa hiển thị thẻ trên điện thoại và toàn màn hình trên máy tính.
           </div>
         </div>
       </div>
     </div>
   );
 }
+
