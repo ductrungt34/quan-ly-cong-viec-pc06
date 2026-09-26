@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="logo_pc06.png">
+  <title>Đội 2 - PC06 Công An TP Hải Phòng | Hệ Thống Quản Lý Nội Bộ</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', 'Be Vietnam Pro', system-ui, sans-serif;
+    }
+
+    @media print {
+
+      header,
+      footer,
+      button,
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background: white !important;
+      }
+
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+
+      th,
+      td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 5px !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-[#f3f7f4] text-slate-800 antialiased min-h-screen">
+  <div id="root"></div>
+
+  <!-- Main Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- 1. DỮ LIỆU CÁN BỘ & ĐỊA BÀN ---
+    const OFFICERS = [
+      { id: 'ch_1', name: 'Thượng tá Đỗ Thị Thu', rank: 'Thượng tá', position: 'Đội trưởng', role: 'admin', responsibility: 'Phụ trách chung & Đề án 06', communes: [] },
+      { id: 'ch_2', name: 'Trung tá Đoàn Vũ Thành', rank: 'Trung tá', position: 'Phó Đội trưởng', role: 'admin', responsibility: 'Phụ trách Quản lý Cư trú', communes: [] },
+      { id: 'ch_3', name: 'Trung tá Nguyễn Thị Ngư', rank: 'Trung tá', position: 'Phó Đội trưởng', role: 'admin', responsibility: 'Phụ trách Căn cước', communes: [] },
+      { id: 'ch_admin', name: 'Cán bộ Quản trị / Tổng hợp', rank: 'Đại úy', position: 'Cán bộ Tổng hợp', role: 'admin', responsibility: 'Quản trị hệ thống & theo dõi tổng hợp', communes: [] },
+
+      { id: 'cb_1', name: 'Hoàng Thị Thuỳ Dung', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Thủy Nguyên', 'Bạch Đằng', 'Lê Chân'] },
+      { id: 'cb_2', name: 'Đỗ Thị Thanh Huyền', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['An Biên', 'Nam Triệu'] },
+      { id: 'cb_3', name: 'Nguyễn Thị Hồng Vân', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Thành Đông', 'Nam Đồng', 'Tân Hưng'] },
+      { id: 'cb_4', name: 'Tạ Thị Quỳnh Anh', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Hải Dương', 'Lê Thanh Nghị', 'Ái Quốc'] },
+      { id: 'cb_5', name: 'Phạm Liên Hương', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Thạch Khôi', 'Tứ Minh', 'Việt Hòa'] },
+      { id: 'cb_6', name: 'Đặng Hoàng Minh', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Cẩm Giàng', 'Cẩm Giang', 'Tuệ Tĩnh', 'Mao Điền', 'Kim Thành', 'Lai Khê', 'Phú Thái', 'An Thành'] },
+      { id: 'cb_7', name: 'Vũ Thị Yến Dung', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Đồ Sơn', 'Nam Đồ Sơn', 'Kiến Hưng', 'Ngô Quyền', 'Gia Viên'] },
+      { id: 'cb_8', name: 'Lê Đức Anh', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Kiến Thụy', 'Kiến Minh', 'Kiến Hải', 'Nghi Dương', 'Dương Kinh', 'Hưng Đạo', 'Nguyễn Bỉnh Khiêm'] },
+      { id: 'cb_9', name: 'Nguyễn Thế Anh', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Tiên Lãng', 'Quyết Thắng', 'Tân Minh', 'Tiên Minh', 'Chấn Hưng', 'Hùng Thắng', 'Vĩnh Am'] },
+      { id: 'cb_10', name: 'Phạm Tú Anh', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Tứ Kỳ', 'Tân Kỳ', 'Đại Sơn', 'Chí Minh', 'Lạc Phượng', 'Nguyên Giáp'] },
+      { id: 'cb_11', name: 'Đào Thị Ngọc Minh', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Hồng Bàng', 'Hồng An', 'Thiên Hương', 'Hòa Bình', 'Phù Liễn'] },
+      { id: 'cb_12', name: 'Phạm Thị Hải Yến', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['An Quang', 'An Trường', 'Cát Hải', 'Lưu Kiếm'] },
+      { id: 'cb_13', name: 'Đặng Thuý Hằng', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Kiến An', 'An Khánh', 'An Hưng', 'An Lão'] },
+      { id: 'cb_14', name: 'Lương Quốc Dũng', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Lê Ích Mộc', 'Việt Khê', 'An Phong'] },
+      { id: 'cb_15', name: 'Phạm Thị Phương Anh', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Nguyễn Đại Năng', 'Trần Liễu', 'Bắc An Phụ', 'Nam An Phụ', 'Nhị Chiểu', 'Phạm Sư Mạnh', 'An Dương'] },
+      { id: 'cb_16', name: 'Nguyễn Xuân Bách', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Vĩnh Thuận', 'Vĩnh Thịnh', 'Vĩnh Hòa', 'Bạch Long Vĩ', 'Gia Lộc', 'Yết Kiêu', 'Gia Phúc', 'Trường Tân'] },
+      { id: 'cb_17', name: 'Phạm Đức Trung', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Bình Giang', 'Kẻ Sặt', 'Đường An', 'Thượng Hồng', 'Thanh Miện', 'Bắc Thanh Miện', 'Nam Thanh Miện', 'Hải Hưng', 'Nguyễn Lương Bằng'] },
+      { id: 'cb_18', name: 'Nguyễn Thị Nhạn', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Đông Hải', 'Hà Nam', 'Hà Đông'] },
+      { id: 'cb_19', name: 'Vũ Thị Thu Phương', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Vĩnh Bảo', 'Vĩnh Hải', 'Hải An'] },
+      { id: 'cb_20', name: 'Nguyễn Văn Sơn', rank: 'Đại úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Chí Linh', 'Chu Văn An', 'Trần Hưng Đạo', 'Nguyễn Trãi', 'Trần Nhân Tông', 'Lê Đại Hành', 'Hà Bắc'] },
+      { id: 'cb_21', name: 'Nguyễn Văn Tuấn', rank: 'Thượng úy', position: 'Cán bộ địa bàn', role: 'user', communes: ['Nam Sách', 'Thái Tân', 'Hợp Tiến', 'Trần Phú', 'An Phú', 'Thanh Hà', 'Hà Tây'] }
+    ];
+
+    const DEFAULT_CATEGORIES = [
+      { id: 'cat_1', name: 'Cư trú', colorClass: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold' },
+      { id: 'cat_2', name: 'Căn cước', colorClass: 'bg-teal-100 text-teal-950 border-teal-300 font-semibold' },
+      { id: 'cat_3', name: 'Đề án 06', colorClass: 'bg-lime-100 text-lime-950 border-lime-400 font-semibold' },
+      { id: 'cat_4', name: 'Đất đai', colorClass: 'bg-amber-100 text-amber-950 border-amber-400 font-semibold' },
+      { id: 'cat_5', name: 'Giao thông', colorClass: 'bg-cyan-100 text-cyan-950 border-cyan-300 font-semibold' }
+    ];
+
+    const INITIAL_DOCS = [
+      {
+        id: 'doc_1',
+        docNumber: '1428/CATP-PC06',
+        docDate: '2026-09-20',
+        excerpt: 'Tham mưu kiểm tra, rà soát công tác quản lý cư trú và kiểm tra lưu trú đối với người nước ngoài trên địa bàn',
+        category: 'Cư trú',
+        officerId: 'cb_1',
+        receivedDate: '2026-09-21',
+        deadlineDate: '2026-09-30',
+        isTrackingOnly: false,
+        resultDocNumber: '',
+        resultDocDate: '',
+        resultExcerpt: ''
+      },
+      {
+        id: 'doc_2',
+        docNumber: '589/C06-TTDL',
+        docDate: '2026-09-18',
+        excerpt: 'Tham mưu chỉ đạo làm sạch dữ liệu công dân không có thông tin nơi cư trú và sai lệch năm sinh trên hệ thống CSDLQG về DC',
+        category: 'Đề án 06',
+        officerId: 'cb_6',
+        receivedDate: '2026-09-19',
+        deadlineDate: '2026-09-27',
+        isTrackingOnly: false,
+        resultDocNumber: '',
+        resultDocDate: '',
+        resultExcerpt: ''
+      },
+      {
+        id: 'doc_3',
+        docNumber: '892/Đ2-CC',
+        docDate: '2026-09-10',
+        excerpt: 'Kế hoạch tham mưu triển khai thu nhận hồ sơ cấp Căn cước lưu động cho học sinh các trường THCS và công dân dưới 14 tuổi',
+        category: 'Căn cước',
+        officerId: 'cb_7',
+        receivedDate: '2026-09-11',
+        deadlineDate: '2026-09-24',
+        isTrackingOnly: false,
+        resultDocNumber: '',
+        resultDocDate: '',
+        resultExcerpt: ''
+      },
+      {
+        id: 'doc_4',
+        docNumber: '315/VP-CATP',
+        docDate: '2026-09-12',
+        excerpt: 'Báo cáo tham mưu phối hợp xác minh diện tích đất quốc phòng, an ninh trên địa bàn quản lý',
+        category: 'Đất đai',
+        officerId: 'cb_8',
+        receivedDate: '2026-09-13',
+        deadlineDate: '2026-09-25',
+        isTrackingOnly: false,
+        resultDocNumber: '412/BC-PC06',
+        resultDocDate: '2026-09-24',
+        resultExcerpt: 'Đã hoàn thành tham mưu xác minh và tổng hợp báo cáo gửi Văn phòng CATP'
+      },
+      {
+        id: 'doc_5',
+        docNumber: '102/CT-BCA',
+        docDate: '2026-09-15',
+        excerpt: 'Chỉ thị theo dõi nắm tình hình vi phạm trật tự an toàn giao thông đường bộ trên các tuyến đê xung yếu và bến bãi',
+        category: 'Giao thông',
+        officerId: 'cb_9',
+        receivedDate: '2026-09-16',
+        deadlineDate: '',
+        isTrackingOnly: true,
+        resultDocNumber: '',
+        resultDocDate: '',
+        resultExcerpt: ''
+      },
+      {
+        id: 'doc_7',
+        docNumber: '750/CATP-PC06',
+        docDate: '2026-09-14',
+        excerpt: 'Tham mưu kế hoạch kiểm tra liên ngành công tác PCCC và đăng ký quản lý ngành nghề đầu tư kinh doanh có điều kiện về ANTT',
+        category: 'Cư trú',
+        officerId: 'cb_17',
+        receivedDate: '2026-09-15',
+        deadlineDate: '2026-09-28',
+        isTrackingOnly: false,
+        resultDocNumber: '533/BC-Đ2',
+        resultDocDate: '2026-09-25',
+        resultExcerpt: 'Đã hoàn thành dự thảo văn bản tham mưu báo cáo lãnh đạo Phòng ký ban hành'
+      }
+    ];
+
+    const INITIAL_TASKS = [
+      {
+        id: 'task_1',
+        title: 'Đôn đốc Công an cấp xã làm sạch 100% dữ liệu dân cư trùng lặp và sai cấu trúc',
+        content: 'Đôn đốc các xã, phường phụ trách rà soát, đối chiếu hồ sơ tàng thư và cập nhật phần mềm DC01, hoàn thành chỉ tiêu trước 30/09/2026.',
+        category: 'Đề án 06',
+        assignedToAll: true,
+        assignedOfficers: [],
+        deadline: '2026-09-30',
+        createdAt: '2026-09-15',
+        createdByName: 'Thượng tá Đỗ Thị Thu - Đội trưởng',
+        submissions: {
+          'cb_1': {
+            mode: 'per_commune',
+            urgingStatus: 'Đang thực hiện',
+            communeResults: {
+              'Thủy Nguyên': { status: 'Đã hoàn thành', notes: 'Đã xong 100%' },
+              'Bạch Đằng': { status: 'Đã hoàn thành', notes: 'Đã đối chiếu xong' },
+              'Lê Chân': { status: 'Đang thực hiện', notes: 'Còn 12 trường hợp đang xác minh' }
+            },
+            notes: 'Đã trực tiếp làm việc với CA các xã, phường. Đã xử lý xong 98% dữ liệu.',
+            attachmentName: 'BaoCao_ThuyNguyen_BachDang.pdf',
+            submittedAt: '2026-09-25T10:30:00'
+          },
+          'cb_17': {
+            mode: 'per_commune',
+            urgingStatus: 'Đã đôn đốc / Hoàn thành',
+            communeResults: {
+              'Bình Giang': { status: 'Đã hoàn thành', notes: 'Xong 100%' },
+              'Kẻ Sặt': { status: 'Đã hoàn thành', notes: 'Xong 100%' },
+              'Đường An': { status: 'Đã hoàn thành', notes: 'Xong 100%' },
+              'Thượng Hồng': { status: 'Đã hoàn thành', notes: 'Xong 100%' },
+              'Thanh Miện': { status: 'Đã hoàn thành', notes: 'Hoàn thành tốt' },
+              'Bắc Thanh Miện': { status: 'Đã hoàn thành', notes: 'Hoàn thành' },
+              'Nam Thanh Miện': { status: 'Đã hoàn thành', notes: 'Hoàn thành' },
+              'Hải Hưng': { status: 'Đã hoàn thành', notes: 'Hoàn thành' },
+              'Nguyễn Lương Bằng': { status: 'Đã hoàn thành', notes: 'Hoàn thành' }
+            },
+            notes: 'Đã hoàn thành đôn đốc 9/9 xã, thị trấn phụ trách, thu thập đầy đủ biên bản.',
+            attachmentName: 'BienBan_TongHop_BinhGiang_ThanhMien.pdf',
+            submittedAt: '2026-09-25T16:00:00'
+          }
+        }
+      },
+      {
+        id: 'task_2',
+        title: 'Kiểm tra, đôn đốc thu nhận hồ sơ Căn cước cho công dân dưới 14 tuổi đợt cao điểm',
+        content: 'Tập trung phối hợp các trường mầm non, tiểu học rà soát trẻ từ 0 - 6 tuổi và 6 - 14 tuổi để thu nhận hồ sơ căn cước lưu động.',
+        category: 'Căn cước',
+        assignedToAll: false,
+        assignedOfficers: ['cb_1', 'cb_2', 'cb_3', 'cb_7', 'cb_8', 'cb_13', 'cb_17'],
+        deadline: '2026-09-28',
+        createdAt: '2026-09-18',
+        createdByName: 'Trung tá Nguyễn Thị Ngư - Phó Đội trưởng',
+        submissions: {
+          'cb_7': {
+            mode: 'per_commune',
+            urgingStatus: 'Đang thực hiện',
+            communeResults: {
+              'Đồ Sơn': { status: 'Đã hoàn thành', notes: 'Hoàn thành 300 hồ sơ' },
+              'Nam Đồ Sơn': { status: 'Đã hoàn thành', notes: 'Hoàn thành 150 hồ sơ' },
+              'Kiến Hưng': { status: 'Đang thực hiện', notes: 'Đang lưu động trường Tiểu học' },
+              'Ngô Quyền': { status: 'Đang thực hiện', notes: 'Đang thống kê' },
+              'Gia Viên': { status: 'Chưa đôn đốc', notes: 'Chưa thực hiện' }
+            },
+            notes: 'Địa bàn Đồ Sơn, Nam Đồ Sơn đã hoàn thành 450 hồ sơ lưu động trong tuần.',
+            attachmentName: 'DanhSach_ThuNhan_DoSon.pdf',
+            submittedAt: '2026-09-23T14:10:00'
+          }
+        }
+      },
+      {
+        id: 'task_3',
+        title: 'Đôn đốc số hóa hồ sơ quản lý cư trú và dữ liệu số định danh cá nhân',
+        content: 'Yêu cầu các cán bộ địa bàn đôn đốc Công an các xã hoàn thành số hóa 100% hồ sơ cư trú trước ngày 20/09/2026.',
+        category: 'Cư trú',
+        assignedToAll: true,
+        assignedOfficers: [],
+        assignedCommunes: {},
+        deadline: '2026-09-20',
+        createdAt: '2026-09-05',
+        createdByName: 'Trung tá Đoàn Vũ Thành - Phó Đội trưởng',
+        submissions: {
+          'cb_17': {
+            mode: 'per_commune',
+            urgingStatus: 'Đã hoàn thành',
+            communeResults: {},
+            notes: 'Đã hoàn thành đôn đốc 100% các xã/thị trấn phụ trách số hóa hồ sơ đúng thời hạn.',
+            submittedAt: '2026-09-19T16:00:00'
+          }
+        }
+      }
+    ];
+
+    // --- 2. UTILS ---
+    function getTodayDateString() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatDateVN(dateStr) {
+      if (!dateStr) return '—';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return dateStr;
+    }
+
+    function calculateDaysRemaining(deadlineStr, currentStr = getTodayDateString()) {
+      if (!deadlineStr) return null;
+      const dl = new Date(deadlineStr);
+      dl.setHours(23, 59, 59, 999);
+      const cur = new Date(currentStr);
+      cur.setHours(0, 0, 0, 0);
+      return Math.ceil((dl - cur) / (1000 * 60 * 60 * 24));
+    }
+
+    function computeDocumentStatus(doc, currentStr = getTodayDateString()) {
+      if (doc.isTrackingOnly || !doc.deadlineDate) {
+        return { status: 'Đang theo dõi', badgeClass: 'bg-slate-100 text-slate-800 border-slate-300 font-medium', daysRemaining: null };
+      }
+      const hasResult = Boolean((doc.resultDocNumber && doc.resultDocNumber.trim()) || (doc.resultExcerpt && doc.resultExcerpt.trim()));
+      if (hasResult) {
+        return { status: 'Đã hoàn thành', badgeClass: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold', daysRemaining: null };
+      }
+      const days = calculateDaysRemaining(doc.deadlineDate, currentStr);
+      if (days < 0) {
+        return { status: 'Đã hết hạn', badgeClass: 'bg-rose-100 text-rose-950 border-rose-300 font-bold', daysRemaining: days };
+      } else if (days <= 3) {
+        return { status: 'Sắp hết hạn', badgeClass: 'bg-amber-100 text-amber-950 border-amber-400 font-bold', daysRemaining: days };
+      } else {
+        return { status: 'Đang xử lý', badgeClass: 'bg-blue-100 text-blue-950 border-blue-300 font-medium', daysRemaining: days };
+      }
+    }
+
+    function getGradeFromPercentage(percentage) {
+      const p = Math.round(Number(percentage) || 0);
+      if (p >= 90) {
+        return {
+          grade: 'Loại A (Xuất sắc)',
+          shortGrade: 'Loại A',
+          badgeClass: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-bold'
+        };
+      } else if (p >= 80) {
+        return {
+          grade: 'Loại B (Tốt)',
+          shortGrade: 'Loại B',
+          badgeClass: 'bg-blue-100 text-blue-950 border-blue-300 font-semibold'
+        };
+      } else if (p >= 70) {
+        return {
+          grade: 'Loại C (Hoàn thành)',
+          shortGrade: 'Loại C',
+          badgeClass: 'bg-amber-100 text-amber-950 border-amber-300 font-medium'
+        };
+      } else {
+        return {
+          grade: 'Loại D (Cần đôn đốc)',
+          shortGrade: 'Loại D',
+          badgeClass: 'bg-rose-100 text-rose-950 border-rose-300 font-bold'
+        };
+      }
+    }
+
+    function computeTaskOfficerStatus(task, officer, currentStr = getTodayDateString()) {
+      const officerId = typeof officer === 'string' ? officer : officer?.id;
+
+      // Xác định danh sách xã được giao cho cán bộ này trong nhiệm vụ (tất cả hoặc 1 số xã)
+      let assignedCommunes = [];
+      if (task.assignedCommunes && task.assignedCommunes[officerId]) {
+        assignedCommunes = task.assignedCommunes[officerId];
+      } else if (typeof officer === 'object') {
+        assignedCommunes = officer.communes || [];
+      }
+
+      const sub = task.submissions?.[officerId];
+      const isPast = calculateDaysRemaining(task.deadline, currentStr) < 0;
+
+      let communeBreakdown = {};
+      let completedCommunesCount = 0;
+      let inProgressCommunesCount = 0;
+      let notStartedCommunesCount = 0;
+
+      if (assignedCommunes.length > 0) {
+        assignedCommunes.forEach(cName => {
+          const cData = sub?.communeResults?.[cName];
+          let cStatus = cData?.status;
+          if (!cStatus) {
+            cStatus = sub?.urgingStatus || 'Chưa đôn đốc';
+            if (cStatus === 'Đã đôn đốc / Hoàn thành') cStatus = 'Đã hoàn thành';
+          }
+          if (cStatus === 'Đã hoàn thành' || cStatus === 'Đã đôn đốc / Hoàn thành') {
+            completedCommunesCount++;
+            communeBreakdown[cName] = { status: 'Đã hoàn thành', notes: cData?.notes || '' };
+          } else if (cStatus === 'Đang thực hiện') {
+            if (isPast) {
+              communeBreakdown[cName] = { status: 'Chưa đôn đốc', notes: cData?.notes || 'Quá hạn chưa hoàn thành' };
+            } else {
+              inProgressCommunesCount++;
+              communeBreakdown[cName] = { status: 'Đang thực hiện', notes: cData?.notes || '' };
+            }
+          } else {
+            notStartedCommunesCount++;
+            communeBreakdown[cName] = { status: 'Chưa đôn đốc', notes: '' };
+          }
+        });
+      }
+
+      const isAllDone = assignedCommunes.length > 0 && completedCommunesCount === assignedCommunes.length;
+
+      // 1. Đã hoàn thành
+      if (isAllDone || (sub && (sub.urgingStatus === 'Đã đôn đốc / Hoàn thành' || sub.urgingStatus === 'Đã hoàn thành'))) {
+        return {
+          status: 'Đã hoàn thành',
+          badgeClass: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold',
+          submission: sub,
+          communeBreakdown,
+          completedCommunesCount: assignedCommunes.length,
+          totalCommunesCount: assignedCommunes.length,
+          isLocked: false,
+          isOverdueNotUrged: false
+        };
+      }
+
+      // 2. Quá hạn mà không đôn đốc hoặc chưa xong -> Khóa cập nhật, trạng thái "Chưa đôn đốc"
+      if (isPast) {
+        return {
+          status: 'Chưa đôn đốc',
+          badgeClass: 'bg-rose-100 text-rose-950 border-rose-300 font-bold',
+          submission: sub,
+          isLocked: true,
+          isOverdueNotUrged: true,
+          communeBreakdown,
+          completedCommunesCount,
+          totalCommunesCount: assignedCommunes.length
+        };
+      }
+
+      // 3. Đang thực hiện trong hạn
+      if (sub && (sub.urgingStatus === 'Đang thực hiện' || inProgressCommunesCount > 0 || completedCommunesCount > 0)) {
+        return {
+          status: 'Đang thực hiện',
+          badgeClass: 'bg-blue-100 text-blue-950 border-blue-300 font-medium',
+          submission: sub,
+          isLocked: false,
+          isOverdueNotUrged: false,
+          communeBreakdown,
+          completedCommunesCount,
+          totalCommunesCount: assignedCommunes.length
+        };
+      }
+
+      // 4. Chưa đôn đốc trong hạn
+      return {
+        status: 'Chưa đôn đốc',
+        badgeClass: 'bg-slate-100 text-slate-800 border-slate-300 font-medium',
+        submission: sub,
+        isLocked: false,
+        isOverdueNotUrged: false,
+        communeBreakdown,
+        completedCommunesCount: 0,
+        totalCommunesCount: assignedCommunes.length
+      };
+    }
+
+    // --- 3. MAIN APPLICATION ---
+    function App() {
+      const [currentUserId, setCurrentUserId] = useState(() => localStorage.getItem('pc06_cur_user_v2') || 'ch_1');
+      const [activeTab, setActiveTab] = useState('documents');
+      const [rankingTab, setRankingTab] = useState('all'); // 'all' | 'advisory' | 'urging'
+
+      const [categories, setCategories] = useState(() => {
+        const saved = localStorage.getItem('pc06_cats_v2');
+        return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+      });
+
+      const [documents, setDocuments] = useState(() => {
+        const saved = localStorage.getItem('pc06_docs_v2');
+        return saved ? JSON.parse(saved) : INITIAL_DOCS;
+      });
+
+      const [tasks, setTasks] = useState(() => {
+        const saved = localStorage.getItem('pc06_tasks_v3');
+        return saved ? JSON.parse(saved) : INITIAL_TASKS;
+      });
+
+      const currentUser = OFFICERS.find(o => o.id === currentUserId) || OFFICERS[0];
+      const isAdmin = currentUser.role === 'admin';
+
+      useEffect(() => { localStorage.setItem('pc06_cur_user_v2', currentUserId); }, [currentUserId]);
+      useEffect(() => { localStorage.setItem('pc06_cats_v2', JSON.stringify(categories)); }, [categories]);
+      useEffect(() => { localStorage.setItem('pc06_docs_v2', JSON.stringify(documents)); }, [documents]);
+      useEffect(() => { localStorage.setItem('pc06_tasks_v3', JSON.stringify(tasks)); }, [tasks]);
+
+      // Modals
+      const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+      const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+      const [editingDoc, setEditingDoc] = useState(null);
+      const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+      const [selectedDocForResult, setSelectedDocForResult] = useState(null);
+      const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+      const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+      const [subTask, setSubTask] = useState(null);
+      const [subOfficerId, setSubOfficerId] = useState(null);
+
+      // State for Task Modal (Module 2) - Giao 21 cán bộ hoặc chọn cụ thể; Giao tất cả xã hoặc 1 số xã
+      const [taskAssignScope, setTaskAssignScope] = useState('all'); // 'all' | 'custom'
+      const [taskSelectedOfficers, setTaskSelectedOfficers] = useState([]);
+      const [taskCommuneScope, setTaskCommuneScope] = useState('all_communes'); // 'all_communes' | 'custom_communes'
+      const [taskOfficerCommuneMap, setTaskOfficerCommuneMap] = useState({});
+      const [expandedCommuneOfficerId, setExpandedCommuneOfficerId] = useState(null);
+
+      // State for compact tasks toggle (Module 2)
+      const [expandedTaskIds, setExpandedTaskIds] = useState({});
+
+      // Bộ lọc khoảng thời gian xếp hạng (Dashboard)
+      const [customStartDate, setCustomStartDate] = useState('');
+      const [customEndDate, setCustomEndDate] = useState('');
+      const [timePreset, setTimePreset] = useState('all');
+
+      // Filters for Module 1
+      const [searchTerm, setSearchTerm] = useState('');
+      const [filterOfficer, setFilterOfficer] = useState('all');
+      const [filterCategory, setFilterCategory] = useState('all');
+      const [filterStatus, setFilterStatus] = useState('all');
+      const [startDate, setStartDate] = useState('');
+      const [endDate, setEndDate] = useState('');
+
+      // Clock
+      const [timeNow, setTimeNow] = useState('');
+      useEffect(() => {
+        const update = () => {
+          const now = new Date();
+          setTimeNow(now.toLocaleDateString('vi-VN', {
+            weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          }));
+        };
+        update();
+        const id = setInterval(update, 1000);
+        return () => clearInterval(id);
+      }, []);
+
+      // Handlers
+      const handleSaveDoc = (newDoc) => {
+        if (editingDoc) {
+          setDocuments(documents.map(d => d.id === newDoc.id ? newDoc : d));
+        } else {
+          setDocuments([newDoc, ...documents]);
+        }
+        setIsDocModalOpen(false);
+      };
+
+      const handleDeleteDoc = (id) => {
+        if (confirm('Bạn có chắc chắn muốn xóa văn bản này khỏi bảng theo dõi?')) {
+          setDocuments(documents.filter(d => d.id !== id));
+        }
+      };
+
+      const handleSaveDocResult = (id, resultData) => {
+        setDocuments(documents.map(d => d.id === id ? { ...d, ...resultData } : d));
+        setIsResultModalOpen(false);
+      };
+
+      const handleSaveTask = (newTask) => {
+        setTasks([newTask, ...tasks]);
+        setIsTaskModalOpen(false);
+      };
+
+      const handleSaveSubmission = (taskId, officerId, subData) => {
+        setTasks(tasks.map(t => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              submissions: {
+                ...(t.submissions || {}),
+                [officerId]: subData
+              }
+            };
+          }
+          return t;
+        }));
+        setIsSubModalOpen(false);
+      };
+
+      // Filtered Docs
+      const filteredDocs = useMemo(() => {
+        return documents.filter(doc => {
+          const s = computeDocumentStatus(doc).status;
+          const officer = OFFICERS.find(o => o.id === doc.officerId) || { name: '' };
+
+          if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            const match = doc.docNumber.toLowerCase().includes(term) ||
+              doc.excerpt.toLowerCase().includes(term) ||
+              officer.name.toLowerCase().includes(term) ||
+              (doc.resultDocNumber && doc.resultDocNumber.toLowerCase().includes(term));
+            if (!match) return false;
+          }
+          if (filterOfficer !== 'all' && doc.officerId !== filterOfficer) return false;
+          if (filterCategory !== 'all' && doc.category !== filterCategory) return false;
+          if (filterStatus !== 'all' && s !== filterStatus) return false;
+          if (startDate && doc.docDate < startDate) return false;
+          if (endDate && doc.docDate > endDate) return false;
+
+          return true;
+        });
+      }, [documents, searchTerm, filterOfficer, filterCategory, filterStatus, startDate, endDate]);
+
+      // Counts for Module 1
+      const counts = useMemo(() => {
+        const res = { total: documents.length, processing: 0, dueSoon: 0, overdue: 0, completed: 0, tracking: 0 };
+        documents.forEach(d => {
+          const s = computeDocumentStatus(d).status;
+          if (s === 'Đang xử lý') res.processing++;
+          else if (s === 'Sắp hết hạn') res.dueSoon++;
+          else if (s === 'Đã hết hạn') res.overdue++;
+          else if (s === 'Đã hoàn thành') res.completed++;
+          else if (s === 'Đang theo dõi') res.tracking++;
+        });
+        return res;
+      }, [documents]);
+
+      // Export CSV
+      const exportCSV = () => {
+        const headers = ['STT', 'Số/Ký hiệu VB', 'Ngày VB', 'Trích yếu', 'Lĩnh vực', 'Cán bộ thực hiện', 'Hạn xử lý', 'Trạng thái', 'Số VB KQ', 'Ngày VB KQ', 'Trích yếu KQ'];
+        const rows = filteredDocs.map((d, i) => {
+          const off = OFFICERS.find(o => o.id === d.officerId)?.name || '';
+          const st = computeDocumentStatus(d).status;
+          return [i + 1, `"${d.docNumber}"`, d.docDate, `"${d.excerpt.replace(/"/g, '""')}"`, d.category, `"${off}"`, d.isTrackingOnly ? 'Theo dõi' : d.deadlineDate, st, `"${d.resultDocNumber || ''}"`, d.resultDocDate || '', `"${(d.resultExcerpt || '').replace(/"/g, '""')}"`];
+        });
+        const content = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Bang_Van_Ban_PC06_${getTodayDateString()}.csv`;
+        a.click();
+      };
+
+      // LỌC DỮ LIỆU BẢNG XẾP HẠNG THEO KHOẢNG THỜI GIAN
+      const dashboardDocs = useMemo(() => {
+        return documents.filter(doc => {
+          const dDate = doc.docDate;
+          if (customStartDate && dDate < customStartDate) return false;
+          if (customEndDate && dDate > customEndDate) return false;
+          return true;
+        });
+      }, [documents, customStartDate, customEndDate]);
+
+      const dashboardTasks = useMemo(() => {
+        return tasks.filter(task => {
+          const tDate = task.createdAt || task.deadline;
+          if (customStartDate && tDate < customStartDate) return false;
+          if (customEndDate && tDate > customEndDate) return false;
+          return true;
+        });
+      }, [tasks, customStartDate, customEndDate]);
+
+      // TÍNH TOÁN ĐÁNH GIÁ VÀ XẾP HẠNG 21 CÁN BỘ THEO TỈ LỆ PHẦN TRĂM (%) VÀ LOẠI A/B/C/D
+      const evaluatedOfficers = useMemo(() => {
+        const areaOfficers = OFFICERS.filter(o => o.role === 'user');
+        return areaOfficers.map(officer => {
+          // 1) THAM MƯU:
+          const myDocs = dashboardDocs.filter(d => d.officerId === officer.id);
+          let docsDone = 0;
+          let docsOverdue = 0;
+          myDocs.forEach(d => {
+            const s = computeDocumentStatus(d).status;
+            if (s === 'Đã hoàn thành') docsDone++;
+            else if (s === 'Đã hết hạn') docsOverdue++;
+          });
+          const advisoryRate = myDocs.length > 0 ? Math.round((docsDone / myDocs.length) * 100) : 100;
+          const advisoryGradeObj = getGradeFromPercentage(advisoryRate);
+
+          // 2) ĐÔN ĐỐC XÃ:
+          let tasksAssigned = 0;
+          let tasksDone = 0;
+          let tasksOverdue = 0;
+          let totalCommunesDone = 0;
+          let totalCommunesAssigned = 0;
+
+          dashboardTasks.forEach(task => {
+            const isAssigned = task.assignedToAll || task.assignedOfficers?.includes(officer.id);
+            if (isAssigned) {
+              tasksAssigned++;
+              const stInfo = computeTaskOfficerStatus(task, officer);
+              if (stInfo.status === 'Đã hoàn thành') tasksDone++;
+              if (stInfo.isOverdueNotUrged) tasksOverdue++;
+              totalCommunesDone += stInfo.completedCommunesCount || 0;
+              totalCommunesAssigned += stInfo.totalCommunesCount || 0;
+            }
+          });
+
+          let urgingRate = 100;
+          if (totalCommunesAssigned > 0) {
+            urgingRate = Math.round((totalCommunesDone / totalCommunesAssigned) * 100);
+          } else if (tasksAssigned > 0) {
+            urgingRate = Math.round((tasksDone / tasksAssigned) * 100);
+          }
+          const urgingGradeObj = getGradeFromPercentage(urgingRate);
+
+          // 3) CHUNG (Tỉ lệ % trung bình cả 2 mặt)
+          const overallRate = Math.round((advisoryRate + urgingRate) / 2);
+          const overallGradeObj = getGradeFromPercentage(overallRate);
+
+          return {
+            ...officer,
+            myDocsCount: myDocs.length,
+            docsDone,
+            docsOverdue,
+            advisoryRate,
+            advisoryGrade: advisoryGradeObj.grade,
+            advisoryBadge: advisoryGradeObj.badgeClass,
+            tasksAssigned,
+            tasksDone,
+            tasksOverdue,
+            totalCommunesDone,
+            totalCommunesAssigned,
+            urgingRate,
+            urgingGrade: urgingGradeObj.grade,
+            urgingBadge: urgingGradeObj.badgeClass,
+            overallRate,
+            overallGrade: overallGradeObj.grade,
+            overallBadge: overallGradeObj.badgeClass
+          };
+        });
+      }, [dashboardDocs, dashboardTasks]);
+
+      const advisoryRankings = useMemo(() => [...evaluatedOfficers].sort((a, b) => b.advisoryRate - a.advisoryRate), [evaluatedOfficers]);
+      const urgingRankings = useMemo(() => [...evaluatedOfficers].sort((a, b) => b.urgingRate - a.urgingRate), [evaluatedOfficers]);
+      const overallRankings = useMemo(() => [...evaluatedOfficers].sort((a, b) => b.overallRate - a.overallRate), [evaluatedOfficers]);
+
+      return (
+        <div className="min-h-screen flex flex-col w-full">
+          {/* HEADER - TÔNG MÀU XANH LÁ MẠ CẢNH SÁT */}
+          <header className="bg-[#143e21] text-white shadow-lg sticky top-0 z-40 border-b border-[#286f3b] w-full">
+            <div className="bg-gradient-to-r from-[#10351b] via-[#184e28] to-[#1f6333] px-3 md:px-6 py-2 border-b border-amber-400/30">
+              <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1 text-xs">
+                <div className="flex items-center gap-2 font-bold text-amber-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-ping inline-block"></span>
+                  <span>CÔNG AN THÀNH PHỐ HẢI PHÒNG • PHÒNG CẢNH SÁT QLHC VỀ TTXH (PC06)</span>
+                </div>
+                <div className="text-lime-200 font-mono text-xs">
+                  {timeNow}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full px-3 md:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="relative w-12 h-12 rounded-full overflow-hidden bg-white shadow-md ring-2 ring-amber-400 flex items-center justify-center flex-shrink-0"
+                  style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', maxWidth: '48px', maxHeight: '48px' }}
+                >
+                  <img
+                    src="logo_pc06.png"
+                    alt="Huy hiệu PC06"
+                    className="object-cover scale-105"
+                    style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', maxWidth: '48px', maxHeight: '48px', display: 'block' }}
+                    onError={(e) => { e.target.src = '/logo_pc06.png'; }}
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-red-700 text-amber-300 border border-amber-400/60 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                      ĐỘI 2 - PC06
+                    </span>
+                    <span className="text-xs text-lime-200 font-medium">Hệ thống Điều hành Nội bộ</span>
+                  </div>
+                  <h1 className="text-base md:text-lg font-bold text-white tracking-tight mt-0.5">
+                    Quản Lý Văn Bản & Đôn Đốc Công An Cấp Xã
+                  </h1>
+                </div>
+              </div>
+
+              {/* USER SWITCHER */}
+              <div className="flex items-center gap-2 bg-[#194c29] p-2 rounded-xl border border-[#2e7d44]">
+                <div className="text-right">
+                  <div className="text-xs font-bold text-white">{currentUser.name}</div>
+                  <div className="text-[10px] text-amber-300">{currentUser.position} ({isAdmin ? 'Quản lý' : 'Cán bộ'})</div>
+                </div>
+                <select
+                  value={currentUserId}
+                  onChange={(e) => setCurrentUserId(e.target.value)}
+                  className="bg-[#10351b] text-white text-xs border border-[#2f8546] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-lime-400"
+                >
+                  <optgroup label="Ban Chỉ Huy Đội (Admin)">
+                    {OFFICERS.filter(o => o.role === 'admin').map(o => (
+                      <option key={o.id} value={o.id}>{o.name} ({o.position})</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="21 Cán Bộ Địa Bàn (User)">
+                    {OFFICERS.filter(o => o.role === 'user').map((o, idx) => (
+                      <option key={o.id} value={o.id}>{idx + 1}. {o.name}</option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+
+            {/* TAB BUTTONS */}
+            <div className="w-full px-3 md:px-6 flex items-center gap-2 border-t border-[#205831] pt-2 pb-2 overflow-x-auto text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-lime-400 text-slate-950 shadow-md ring-2 ring-lime-300' : 'text-lime-100 hover:bg-[#1c552e]'
+                  }`}
+              >
+                🏆 Tổng Quan & Bảng Xếp Hạng
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('documents')}
+                className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'documents' ? 'bg-lime-400 text-slate-950 shadow-md ring-2 ring-lime-300' : 'text-lime-100 hover:bg-[#1c552e]'
+                  }`}
+              >
+                📄 Module 1: Văn Bản Hàng Ngày ({documents.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('tasks')}
+                className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'tasks' ? 'bg-lime-400 text-slate-950 shadow-md ring-2 ring-lime-300' : 'text-lime-100 hover:bg-[#1c552e]'
+                  }`}
+              >
+                ☑️ Module 2: Đôn Đốc Công An Xã ({tasks.length})
+              </button>
+
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setIsCatModalOpen(true)}
+                  className="ml-auto text-[11px] bg-[#194c29] text-lime-200 hover:text-white px-2.5 py-1 rounded-lg border border-[#2d7943]"
+                >
+                  ⚙️ Quản lý Lĩnh vực
+                </button>
+              )}
+            </div>
+          </header>
+
+          {/* MAIN CONTENT - MỞ RỘNG TOÀN CHIỀU RỘNG */}
+          <main className="w-full px-2 sm:px-4 md:px-6 py-4 flex-1 space-y-5">
+
+            {/* ========== TAB 1: DASHBOARD & XẾP HẠNG ========== */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-5">
+                {/* 1. ĐÁNH GIÁ CHUNG KẾT QUẢ THAM MƯU TOÀN ĐỘI */}
+                <div className="bg-white p-5 rounded-2xl shadow-xs border border-emerald-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-[#143e21] text-amber-300 rounded-xl font-bold">
+                        ★
+                      </div>
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 uppercase">
+                          Đánh Giá Chung Kết Quả Công Tác Tham Mưu Toàn Đội
+                        </h2>
+                        <p className="text-xs text-slate-500">Chỉ đạo nghiệp vụ Đề án 06, Quản lý cư trú, Căn cước và Trật tự xã hội</p>
+                      </div>
+                    </div>
+                    <span className="text-xs bg-emerald-100 text-emerald-950 font-bold px-3 py-1 rounded-full border border-emerald-300">
+                      Tỷ lệ hoàn thành: {dashboardDocs.length > 0 ? Math.round((dashboardDocs.filter(d => computeDocumentStatus(d).status === 'Đã hoàn thành').length / dashboardDocs.length) * 100) : 100}%
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200">
+                      <div className="text-[11px] font-semibold text-emerald-900">Tổng VB tham mưu trong kỳ</div>
+                      <div className="text-2xl font-bold font-mono text-emerald-950 mt-0.5">{dashboardDocs.length}</div>
+                      <div className="text-[10px] text-emerald-700">100% đã phân công cụ thể</div>
+                    </div>
+                    <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200">
+                      <div className="text-[11px] font-semibold text-blue-900">Đã tham mưu hoàn thành</div>
+                      <div className="text-2xl font-bold font-mono text-blue-950 mt-0.5">
+                        {dashboardDocs.filter(d => computeDocumentStatus(d).status === 'Đã hoàn thành').length}
+                      </div>
+                      <div className="text-[10px] text-blue-700">Có báo cáo/văn bản kết quả</div>
+                    </div>
+                    <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200">
+                      <div className="text-[11px] font-semibold text-amber-900">Đang nghiên cứu / Sắp đến hạn</div>
+                      <div className="text-2xl font-bold font-mono text-amber-950 mt-0.5">
+                        {dashboardDocs.filter(d => {
+                          const s = computeDocumentStatus(d).status;
+                          return s === 'Đang xử lý' || s === 'Sắp hết hạn';
+                        }).length}
+                      </div>
+                      <div className="text-[10px] text-amber-800 font-semibold">Theo dõi tiến độ thường xuyên</div>
+                    </div>
+                    <div className="bg-rose-50/70 p-3 rounded-xl border border-rose-200">
+                      <div className="text-[11px] font-semibold text-rose-900">Văn bản quá hạn cần chỉ đạo</div>
+                      <div className="text-2xl font-bold font-mono text-rose-950 mt-0.5">
+                        {dashboardDocs.filter(d => computeDocumentStatus(d).status === 'Đã hết hạn').length}
+                      </div>
+                      <div className="text-[10px] text-rose-700">Yêu cầu đôn đốc hoàn thành ngay</div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                    <div className="font-bold text-[#143e21] uppercase text-[11px]">Nhận xét đánh giá của Ban Chỉ huy Đội 2:</div>
+                    <p className="text-slate-700 leading-relaxed text-[11px]">
+                      • <strong>Ưu điểm:</strong> Cán bộ chủ động nghiên cứu quy định pháp luật và văn bản hướng dẫn nghiệp vụ của Bộ Công an, Cục C06; công tác lập hồ sơ và dự thảo báo cáo tham mưu chất lượng.<br />
+                      • <strong>Tồn tại:</strong> Một số hồ sơ xác minh địa bàn phức tạp còn để sát hạn; cần tăng cường phối hợp đôn đốc các xã/phường cung cấp số liệu kịp thời.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. BỘ LỌC XẾP HẠNG THEO THỜI GIAN & QUY CHUẨN XẾP LOẠI */}
+                <div className="bg-white p-4 md:p-5 rounded-2xl shadow-xs border border-emerald-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 bg-[#143e21] text-lime-300 rounded-lg text-sm">📅</span>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 uppercase">Bộ Lọc Xếp Hạng Theo Thời Gian</h3>
+                        <p className="text-[11px] text-slate-500">Tùy chọn khoảng thời gian để đánh giá, xếp hạng công tác tham mưu & đôn đốc</p>
+                      </div>
+                    </div>
+                    {(customStartDate || customEndDate) && (
+                      <span className="text-xs bg-amber-100 text-amber-900 font-semibold px-2.5 py-1 rounded-full border border-amber-300">
+                        Đang lọc: {customStartDate ? formatDateVN(customStartDate) : 'Từ trước'} ➔ {customEndDate ? formatDateVN(customEndDate) : 'Nay'}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                      <span>Từ ngày:</span>
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        onChange={(e) => { setCustomStartDate(e.target.value); setTimePreset('custom'); }}
+                        className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                      <span>Đến ngày:</span>
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        onChange={(e) => { setCustomEndDate(e.target.value); setTimePreset('custom'); }}
+                        className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5 ml-auto text-xs">
+                      <button
+                        onClick={() => { setCustomStartDate(''); setCustomEndDate(''); setTimePreset('all'); }}
+                        className={`px-2.5 py-1 rounded-lg font-semibold transition-all border ${timePreset === 'all' ? 'bg-[#143e21] text-amber-300 border-[#143e21]' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      >
+                        Tất cả
+                      </button>
+                      <button
+                        onClick={() => { setCustomStartDate('2026-01-01'); setCustomEndDate('2026-02-01'); setTimePreset('m1'); }}
+                        className={`px-2.5 py-1 rounded-lg font-semibold transition-all border ${timePreset === 'm1' ? 'bg-[#143e21] text-amber-300 border-[#143e21]' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      >
+                        01/01/2026 - 01/02/2026
+                      </button>
+                      <button
+                        onClick={() => { setCustomStartDate('2026-01-01'); setCustomEndDate('2026-04-01'); setTimePreset('m4'); }}
+                        className={`px-2.5 py-1 rounded-lg font-semibold transition-all border ${timePreset === 'm4' ? 'bg-[#143e21] text-amber-300 border-[#143e21]' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      >
+                        01/01/2026 - 01/04/2026
+                      </button>
+                      <button
+                        onClick={() => { setCustomStartDate('2026-01-01'); setCustomEndDate('2026-12-31'); setTimePreset('y2026'); }}
+                        className={`px-2.5 py-1 rounded-lg font-semibold transition-all border ${timePreset === 'y2026' ? 'bg-[#143e21] text-amber-300 border-[#143e21]' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      >
+                        Cả năm 2026
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* THÔNG BÁO QUY CHUẨN XẾP LOẠI THEO PHẦN TRĂM (%) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-center">
+                    <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-300">
+                      <div className="font-bold text-emerald-950 text-xs">Loại A (Xuất sắc)</div>
+                      <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">Từ 90% trở lên</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-blue-50 border border-blue-300">
+                      <div className="font-bold text-blue-950 text-xs">Loại B (Tốt)</div>
+                      <div className="text-[11px] text-blue-700 font-semibold mt-0.5">Từ 80% đến dưới 90%</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-amber-50 border border-amber-300">
+                      <div className="font-bold text-amber-950 text-xs">Loại C (Hoàn thành)</div>
+                      <div className="text-[11px] text-amber-700 font-semibold mt-0.5">Từ 70% đến dưới 80%</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-rose-50 border border-rose-300">
+                      <div className="font-bold text-rose-950 text-xs">Loại D (Cần đôn đốc)</div>
+                      <div className="text-[11px] text-rose-700 font-semibold mt-0.5">Dưới 70%</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. BẢNG XẾP HẠNG CÁ NHÂN THEO TỈ LỆ % */}
+                <div className="bg-white rounded-2xl shadow-xs border border-emerald-200 overflow-hidden">
+                  <div className="p-4 bg-emerald-50/60 border-b border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base">Bảng Xếp Hạng Đánh Giá 21 Cán Bộ Địa Bàn</h3>
+                      <p className="text-xs text-slate-500">Đánh giá theo tỉ lệ phần trăm (%) đạt được riêng cho 1) Tham mưu, 2) Đôn đốc xã và Tổng hợp chung</p>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-emerald-300">
+                      <button
+                        onClick={() => setRankingTab('all')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${rankingTab === 'all' ? 'bg-[#143e21] text-amber-300 shadow-xs' : 'text-slate-600'}`}
+                      >
+                        Tổng Hợp Cả 2 Mặt
+                      </button>
+                      <button
+                        onClick={() => setRankingTab('advisory')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${rankingTab === 'advisory' ? 'bg-blue-700 text-white shadow-xs' : 'text-slate-600'}`}
+                      >
+                        1) Công Tác Tham Mưu (VB)
+                      </button>
+                      <button
+                        onClick={() => setRankingTab('urging')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${rankingTab === 'urging' ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-600'}`}
+                      >
+                        2) Công Tác Đôn Đốc Xã
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* BẢNG 1: THAM MƯU (THEO % ĐẠT ĐƯỢC) */}
+                  {rankingTab === 'advisory' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-[#143e21] text-white font-semibold">
+                            <th className="py-2.5 px-3 text-center w-12">Hạng</th>
+                            <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
+                            <th className="py-2.5 px-3 min-w-[200px]">Địa Bàn Phụ Trách</th>
+                            <th className="py-2.5 px-3 text-center min-w-[110px]">VB Được Giao</th>
+                            <th className="py-2.5 px-3 text-center min-w-[120px]">Hoàn Thành Đúng Hạn</th>
+                            <th className="py-2.5 px-3 text-center min-w-[90px]">Quá Hạn</th>
+                            <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt Được (%)</th>
+                            <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Tham Mưu</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {advisoryRankings.map((officer, idx) => (
+                            <tr key={officer.id} className="hover:bg-blue-50/40">
+                              <td className="py-2 px-3 text-center font-bold">{idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}</td>
+                              <td className="py-2 px-3 font-bold text-slate-900">{officer.name}</td>
+                              <td className="py-2 px-3 text-slate-600">{officer.communes.slice(0, 3).join(', ')}...</td>
+                              <td className="py-2 px-3 text-center font-mono">{officer.myDocsCount} VB</td>
+                              <td className="py-2 px-3 text-center font-mono text-emerald-700 font-bold">{officer.docsDone} VB</td>
+                              <td className="py-2 px-3 text-center font-mono">{officer.docsOverdue > 0 ? <span className="text-red-600 font-bold">{officer.docsOverdue}</span> : 0}</td>
+                              <td className="py-2 px-3 text-center font-mono font-bold text-blue-900 text-sm">{officer.advisoryRate}%</td>
+                              <td className="py-2 px-3 text-center"><span className={`px-2 py-0.5 rounded-full border text-[11px] ${officer.advisoryBadge}`}>{officer.advisoryGrade}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* BẢNG 2: ĐÔN ĐỐC XÃ (THEO % ĐẠT ĐƯỢC) */}
+                  {rankingTab === 'urging' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-[#143e21] text-white font-semibold">
+                            <th className="py-2.5 px-3 text-center w-12">Hạng</th>
+                            <th className="py-2.5 px-3 min-w-[160px]">Họ Và Tên Cán Bộ</th>
+                            <th className="py-2.5 px-3 min-w-[200px]">Xã / Phường Phụ Trách</th>
+                            <th className="py-2.5 px-3 text-center min-w-[110px]">Nhiệm Vụ Giao</th>
+                            <th className="py-2.5 px-3 text-center min-w-[130px]">Tiến Độ Từng Xã</th>
+                            <th className="py-2.5 px-3 text-center min-w-[90px]">Quá Hạn Chưa Đôn Đốc</th>
+                            <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt Được (%)</th>
+                            <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Đôn Đốc</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {urgingRankings.map((officer, idx) => (
+                            <tr key={officer.id} className="hover:bg-emerald-50/40">
+                              <td className="py-2 px-3 text-center font-bold">{idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}</td>
+                              <td className="py-2 px-3 font-bold text-slate-900">{officer.name}</td>
+                              <td className="py-2 px-3 text-slate-600">{officer.communes.slice(0, 3).join(', ')}... ({officer.communes.length} xã)</td>
+                              <td className="py-2 px-3 text-center font-mono">{officer.tasksAssigned} nhiệm vụ</td>
+                              <td className="py-2 px-3 text-center font-mono text-emerald-700 font-bold">{officer.totalCommunesDone}/{officer.totalCommunesAssigned} lượt xã</td>
+                              <td className="py-2 px-3 text-center font-mono">{officer.tasksOverdue > 0 ? <span className="text-red-600 font-bold">{officer.tasksOverdue}</span> : 0}</td>
+                              <td className="py-2 px-3 text-center font-mono font-bold text-emerald-900 text-sm">{officer.urgingRate}%</td>
+                              <td className="py-2 px-3 text-center"><span className={`px-2 py-0.5 rounded-full border text-[11px] ${officer.urgingBadge}`}>{officer.urgingGrade}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* BẢNG TỔNG HỢP SONG SONG (THEO % ĐẠT ĐƯỢC) */}
+                  {rankingTab === 'all' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-[#143e21] text-white font-semibold">
+                            <th className="py-2.5 px-3 text-center w-12">Hạng</th>
+                            <th className="py-2.5 px-3 min-w-[150px]">Cán Bộ Địa Bàn</th>
+                            <th className="py-2.5 px-3 min-w-[180px]">Địa Bàn Phụ Trách</th>
+                            <th className="py-2.5 px-3 text-center min-w-[150px] bg-[#1a4a27]">1) Tham Mưu (VB)</th>
+                            <th className="py-2.5 px-3 text-center min-w-[150px] bg-[#1e5830]">2) Đôn Đốc Cấp Xã</th>
+                            <th className="py-2.5 px-3 text-center min-w-[110px]">Tỉ Lệ Đạt Được (%)</th>
+                            <th className="py-2.5 px-3 text-center min-w-[130px]">Xếp Loại Chung</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {overallRankings.map((officer, index) => (
+                            <tr key={officer.id} className="hover:bg-slate-50">
+                              <td className="py-2 px-3 text-center font-bold">{index === 0 ? '🥇 1' : index === 1 ? '🥈 2' : index === 2 ? '🥉 3' : index + 1}</td>
+                              <td className="py-2 px-3 font-bold text-slate-900">{officer.name}</td>
+                              <td className="py-2 px-3 text-slate-600">{officer.communes.slice(0, 3).join(', ')}... ({officer.communes.length} xã)</td>
+                              <td className="py-2 px-3 text-center bg-blue-50/40 font-mono">
+                                <div className="font-semibold">{officer.docsDone}/{officer.myDocsCount} VB ({officer.advisoryRate}%)</div>
+                                <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] border mt-0.5 ${officer.advisoryBadge}`}>{officer.advisoryGrade}</span>
+                              </td>
+                              <td className="py-2 px-3 text-center bg-emerald-50/40 font-mono">
+                                <div className="font-semibold">{officer.totalCommunesDone}/{officer.totalCommunesAssigned} lượt xã ({officer.urgingRate}%)</div>
+                                <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] border mt-0.5 ${officer.urgingBadge}`}>{officer.urgingGrade}</span>
+                              </td>
+                              <td className="py-2 px-3 text-center font-mono font-bold text-slate-900 text-sm">{officer.overallRate}%</td>
+                              <td className="py-2 px-3 text-center"><span className={`px-2 py-0.5 rounded-full border text-[11px] ${officer.overallBadge}`}>{officer.overallGrade}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <span>* Tiêu chuẩn xếp loại: <strong>Loại A (≥90%)</strong>, <strong>Loại B (80% - &lt;90%)</strong>, <strong>Loại C (70% - &lt;80%)</strong>, <strong>Loại D (&lt;70%)</strong>.</span>
+                    <button onClick={() => window.print()} className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded font-bold transition-colors">🖨️ In Bảng Xếp Hạng</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ========== TAB 2: MODULE 1 - BẢNG VĂN BẢN (MỞ RỘNG TOÀN MÀN HÌNH) ========== */}
+            {activeTab === 'documents' && (
+              <div className="space-y-4 w-full">
+                {/* Header & Actions */}
+                <div className="bg-white p-4 md:p-5 rounded-2xl shadow-xs border border-emerald-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-100 pb-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">Bảng Theo Dõi Văn Bản Hàng Ngày (Mở Rộng Toàn Màn Hình)</h2>
+                      <p className="text-xs text-slate-500">Xem bao quát toàn bộ các cột thông tin mà không cần thanh cuộn ngang.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={exportCSV} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-semibold rounded-lg border border-emerald-300">
+                        📥 Xuất Excel/CSV
+                      </button>
+                      <button onClick={() => window.print()} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-semibold rounded-lg border border-emerald-300">
+                        🖨️ In Bảng
+                      </button>
+                      <button onClick={() => { setEditingDoc(null); setIsDocModalOpen(true); }} className="px-3.5 py-1.5 bg-[#143e21] hover:bg-[#1a4e2a] text-amber-300 text-xs font-bold rounded-lg shadow">
+                        + Thêm Văn Bản Mới
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Status Pills */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-3">
+                    <button onClick={() => setFilterStatus('all')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'all' ? 'bg-[#143e21] text-white font-bold' : 'bg-slate-50 text-slate-700'}`}>
+                      <div>Tổng số VB</div>
+                      <div className="text-lg font-bold font-mono">{counts.total}</div>
+                    </button>
+                    <button onClick={() => setFilterStatus('Đang xử lý')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'Đang xử lý' ? 'bg-blue-600 text-white font-bold' : 'bg-blue-50 text-blue-900'}`}>
+                      <div>Đang xử lý (&gt;3 ngày)</div>
+                      <div className="text-lg font-bold font-mono">{counts.processing}</div>
+                    </button>
+                    <button onClick={() => setFilterStatus('Sắp hết hạn')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'Sắp hết hạn' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-amber-50 text-amber-950 border-amber-400'}`}>
+                      <div>Sắp hết hạn (≤3 ngày)</div>
+                      <div className="text-lg font-bold font-mono">{counts.dueSoon}</div>
+                    </button>
+                    <button onClick={() => setFilterStatus('Đã hết hạn')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'Đã hết hạn' ? 'bg-rose-700 text-white font-bold' : 'bg-rose-50 text-rose-950 border-rose-300'}`}>
+                      <div>Đã hết hạn</div>
+                      <div className="text-lg font-bold font-mono">{counts.overdue}</div>
+                    </button>
+                    <button onClick={() => setFilterStatus('Đã hoàn thành')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'Đã hoàn thành' ? 'bg-emerald-600 text-white font-bold' : 'bg-emerald-50 text-emerald-950 border-emerald-300'}`}>
+                      <div>Đã hoàn thành</div>
+                      <div className="text-lg font-bold font-mono">{counts.completed}</div>
+                    </button>
+                    <button onClick={() => setFilterStatus('Đang theo dõi')} className={`p-2.5 rounded-xl border text-left text-xs ${filterStatus === 'Đang theo dõi' ? 'bg-slate-700 text-white font-bold' : 'bg-slate-100 text-slate-800'}`}>
+                      <div>Đang theo dõi</div>
+                      <div className="text-lg font-bold font-mono">{counts.tracking}</div>
+                    </button>
+                  </div>
+
+                  {/* Filters Bar */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 mt-3 pt-3 border-t border-emerald-100 text-xs">
+                    <input type="text" placeholder="Tìm số hiệu, trích yếu..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none" />
+                    <select value={filterOfficer} onChange={(e) => setFilterOfficer(e.target.value)} className="px-2 py-1.5 border border-slate-300 rounded-lg bg-white">
+                      <option value="all">-- Tất cả cán bộ ({OFFICERS.length}) --</option>
+                      {OFFICERS.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                    </select>
+                    <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="px-2 py-1.5 border border-slate-300 rounded-lg bg-white">
+                      <option value="all">-- Tất cả lĩnh vực ({categories.length}) --</option>
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-2 py-1.5 border border-slate-300 rounded-lg bg-white">
+                      <option value="all">-- Tất cả trạng thái --</option>
+                      <option value="Đang xử lý">Đang xử lý</option>
+                      <option value="Sắp hết hạn">Sắp hết hạn</option>
+                      <option value="Đã hết hạn">Đã hết hạn</option>
+                      <option value="Đã hoàn thành">Đã hoàn thành</option>
+                      <option value="Đang theo dõi">Đang theo dõi</option>
+                    </select>
+                    <div className="flex items-center gap-1">
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-1/2 px-1.5 py-1 border rounded text-[11px]" title="Từ ngày" />
+                      <span>-</span>
+                      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-1/2 px-1.5 py-1 border rounded text-[11px]" title="Đến ngày" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* DATA TABLE TOÀN MÀN HÌNH */}
+                <div className="bg-white rounded-2xl shadow-xs border border-emerald-200 overflow-hidden w-full">
+                  <div className="w-full overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse table-auto">
+                      <thead>
+                        <tr className="bg-[#143e21] text-white font-semibold">
+                          <th className="py-2.5 px-2 text-center w-10">STT</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[130px]">Số / Ký hiệu VB</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[85px]">Ngày VB</th>
+                          <th className="py-2.5 px-2.5 min-w-[200px]">Trích Yếu Nội Dung</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[95px]">Lĩnh Vực</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[130px]">Cán Bộ Thực Hiện</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[85px]">Ngày Nhận</th>
+                          <th className="py-2.5 px-2 whitespace-nowrap w-[115px]">Thời Hạn Xử Lý</th>
+                          <th className="py-2.5 px-2 text-center whitespace-nowrap w-[110px]">Trạng Thái</th>
+                          <th className="py-2.5 px-2.5 min-w-[170px]">Kết Quả Thực Hiện</th>
+                          <th className="py-2.5 px-1.5 text-center whitespace-nowrap w-20">Thao Tác</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {filteredDocs.length === 0 ? (
+                          <tr><td colSpan={11} className="py-12 text-center text-slate-400">Không tìm thấy văn bản phù hợp.</td></tr>
+                        ) : (
+                          filteredDocs.map((doc, idx) => {
+                            const statusInfo = computeDocumentStatus(doc);
+                            const officer = OFFICERS.find(o => o.id === doc.officerId) || { name: 'Chưa rõ', communes: [] };
+                            const catObj = categories.find(c => c.name.toLowerCase() === doc.category.toLowerCase());
+                            const catStyle = catObj?.colorClass || 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold';
+
+                            return (
+                              <tr key={doc.id} className="hover:bg-lime-50/40">
+                                <td className="py-2 px-2 text-center font-mono text-slate-400">{idx + 1}</td>
+                                <td className="py-2 px-2 font-bold font-mono text-slate-900 text-[11px]">{doc.docNumber}</td>
+                                <td className="py-2 px-2 font-mono text-slate-600 text-[11px]">{formatDateVN(doc.docDate)}</td>
+                                <td className="py-2 px-2.5 text-slate-800"><p className="line-clamp-2" title={doc.excerpt}>{doc.excerpt}</p></td>
+                                <td className="py-2 px-2 whitespace-nowrap"><span className={`px-2 py-0.5 rounded text-[11px] border ${catStyle}`}>{doc.category}</span></td>
+                                <td className="py-2 px-2">
+                                  <div className="font-semibold text-slate-900 text-xs">{officer.name}</div>
+                                  {officer.communes.length > 0 && <div className="text-[10px] text-emerald-800 font-medium truncate max-w-[130px]">{officer.communes.slice(0, 2).join(', ')}...</div>}
+                                </td>
+                                <td className="py-2 px-2 font-mono text-slate-600 text-[11px]">{formatDateVN(doc.receivedDate)}</td>
+                                <td className="py-2 px-2 whitespace-nowrap font-mono text-[11px]">
+                                  {doc.isTrackingOnly ? (
+                                    <span className="text-[10px] text-slate-600 italic bg-slate-100 px-1.5 py-0.5 rounded">Theo dõi</span>
+                                  ) : (
+                                    <div>
+                                      <div>{formatDateVN(doc.deadlineDate)}</div>
+                                      {statusInfo.daysRemaining !== null && doc.computedStatus !== 'Đã hoàn thành' && (
+                                        <div className="text-[10px]">
+                                          {statusInfo.daysRemaining < 0 ? (
+                                            <span className="text-red-700 font-bold">Quá {Math.abs(statusInfo.daysRemaining)} ngày</span>
+                                          ) : statusInfo.daysRemaining <= 3 ? (
+                                            <span className="text-amber-800 font-bold">Còn {statusInfo.daysRemaining} ngày</span>
+                                          ) : (
+                                            <span className="text-slate-500">Còn {statusInfo.daysRemaining} ngày</span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-2 px-2 text-center whitespace-nowrap"><span className={`px-2 py-0.5 rounded-full border text-[11px] inline-block ${statusInfo.badgeClass}`}>{statusInfo.status}</span></td>
+                                <td className="py-2 px-2.5">
+                                  {doc.resultDocNumber || doc.resultExcerpt ? (
+                                    <div className="bg-emerald-50/80 p-1.5 rounded border border-emerald-300">
+                                      {doc.resultDocNumber && <div className="font-bold text-emerald-950 font-mono text-[11px]">Số: {doc.resultDocNumber} {doc.resultDocDate ? `(${formatDateVN(doc.resultDocDate)})` : ''}</div>}
+                                      {doc.resultExcerpt && <div className="text-emerald-900 text-[11px] italic line-clamp-1" title={doc.resultExcerpt}>{doc.resultExcerpt}</div>}
+                                    </div>
+                                  ) : (
+                                    <button onClick={() => { setSelectedDocForResult(doc); setIsResultModalOpen(true); }} className="text-blue-700 hover:underline font-semibold text-[11px]">+ Nhập kết quả</button>
+                                  )}
+                                </td>
+                                <td className="py-2 px-1.5 text-center whitespace-nowrap">
+                                  <button onClick={() => { setSelectedDocForResult(doc); setIsResultModalOpen(true); }} className="text-emerald-700 p-1" title="Cập nhật kết quả">✓</button>
+                                  <button onClick={() => { setEditingDoc(doc); setIsDocModalOpen(true); }} className="text-blue-700 p-1" title="Sửa">✎</button>
+                                  {isAdmin && <button onClick={() => handleDeleteDoc(doc.id)} className="text-red-600 p-1" title="Xóa">✕</button>}
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex justify-between">
+                    <span>Hiển thị <strong>{filteredDocs.length}</strong> / <strong>{documents.length}</strong> văn bản</span>
+                    <span className="text-[11px] text-slate-400">* Bảng mở rộng toàn màn hình giúp theo dõi trực quan, không cần thanh cuộn ngang.</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ========== TAB 3: MODULE 2 - ĐÔN ĐỐC XÃ (CHI TIẾT TỪNG XÃ) ========== */}
+            {activeTab === 'tasks' && (
+              <div className="space-y-4 w-full">
+                <div className="bg-white p-4 md:p-5 rounded-2xl shadow-xs border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Quản Lý & Đánh Giá Tiến Độ Đôn Đốc Công An Xã</h2>
+                    <p className="text-xs text-slate-500">Cán bộ cập nhật chi tiết tiến độ đôn đốc cho từng xã, phường phụ trách hoặc áp dụng chung.</p>
+                  </div>
+                  {isAdmin ? (
+                    <button onClick={() => setIsTaskModalOpen(true)} className="px-4 py-2 bg-[#143e21] hover:bg-[#1a4e2a] text-amber-300 text-xs font-bold rounded-xl shadow">
+                      + Giao Nhiệm Vụ Mới
+                    </button>
+                  ) : (
+                    <div className="text-xs bg-emerald-50 text-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-200">
+                      Quyền Cán bộ: Cập nhật tiến độ đôn đốc từng xã
+                    </div>
+                  )}
+                </div>
+
+                {tasks.map(task => {
+                  const daysRemaining = calculateDaysRemaining(task.deadline);
+                  const isPast = daysRemaining < 0;
+                  const areaOfficers = OFFICERS.filter(o => o.role === 'user');
+                  const assignedList = task.assignedToAll ? areaOfficers : areaOfficers.filter(o => task.assignedOfficers?.includes(o.id));
+
+                  let doneCount = 0;
+                  let overdueCount = 0;
+                  assignedList.forEach(o => {
+                    const st = computeTaskOfficerStatus(task, o);
+                    if (st.status === 'Đã hoàn thành') doneCount++;
+                    if (st.isOverdueNotUrged) overdueCount++;
+                  });
+
+                  const percentDone = assignedList.length > 0 ? Math.round((doneCount / assignedList.length) * 100) : 0;
+                  const currentUserAssigned = task.assignedToAll || task.assignedOfficers?.includes(currentUser.id);
+                  const myStatus = computeTaskOfficerStatus(task, currentUser);
+                  const isExpanded = Boolean(expandedTaskIds[task.id]);
+
+                  return (
+                    <div key={task.id} className="bg-white rounded-2xl shadow-xs border border-emerald-200 overflow-hidden transition-all">
+                      {/* THẺ NHIỆM VỤ THU NHỎ / TỔNG QUAN */}
+                      <div className="p-4 md:p-5 space-y-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="bg-emerald-100 text-emerald-950 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-300">{task.category}</span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${isPast ? 'bg-rose-100 text-rose-950 border-rose-300' : 'bg-blue-100 text-blue-950 border-blue-300'}`}>
+                                {isPast ? `Quá hạn ${Math.abs(daysRemaining)} ngày` : `Hạn chót: ${formatDateVN(task.deadline)} (Còn ${daysRemaining} ngày)`}
+                              </span>
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                👥 {task.assignedToAll ? 'Giao tất cả 21 cán bộ' : `Giao ${assignedList.length} cán bộ chỉ định`}
+                              </span>
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900 mt-1">{task.title}</h3>
+                            <p className="text-xs text-slate-600 line-clamp-2">{task.content}</p>
+                          </div>
+
+                          {/* ACTION BUTTONS & TOGGLE CHI TIẾT */}
+                          <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                            {currentUser.role === 'user' && currentUserAssigned && (
+                              myStatus.isLocked ? (
+                                <span className="px-3 py-1.5 bg-rose-50 text-rose-800 border border-rose-300 rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs">
+                                  🔒 Quá hạn (Đã khóa)
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => { setSubTask(task); setSubOfficerId(currentUser.id); setIsSubModalOpen(true); }}
+                                  className="px-3.5 py-1.5 bg-[#143e21] hover:bg-[#1a4e2a] text-amber-300 text-xs font-bold rounded-lg shadow transition-colors flex items-center gap-1"
+                                >
+                                  📝 Cập Nhật Đôn Đốc
+                                </button>
+                              )
+                            )}
+
+                            <button
+                              onClick={() => setExpandedTaskIds(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
+                              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 ${isExpanded
+                                  ? 'bg-[#143e21] text-amber-300 border-[#143e21] shadow-xs'
+                                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-300'
+                                }`}
+                            >
+                              {isExpanded ? '▲ Thu Gọn Bảng' : `👁️ Xem Chi Tiết Tiến Độ (${assignedList.length} CB)`}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* THANH TIẾN ĐỘ MINI */}
+                        <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-3 flex-1 max-w-md">
+                            <span className="text-[11px] font-semibold text-slate-700 whitespace-nowrap">
+                              Tiến độ: <strong>{doneCount}/{assignedList.length}</strong> cán bộ hoàn thành ({percentDone}%)
+                            </span>
+                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+                              <div className="bg-emerald-600 h-full rounded-full transition-all" style={{ width: `${percentDone}%` }}></div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                            {overdueCount > 0 && (
+                              <span className="text-red-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                                ⚠️ {overdueCount} cán bộ quá hạn chưa đôn đốc
+                              </span>
+                            )}
+                            <span>Người giao: <strong>{task.createdByName || 'Lãnh đạo Đội 2'}</strong></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* BẢNG CHI TIẾT KHI BẤM NÚT "XEM CHI TIẾT TIẾN ĐỘ" */}
+                      {isExpanded && (
+                        <div className="border-t border-emerald-200 bg-slate-50/50 p-3 md:p-4 animate-in fade-in duration-150">
+                          <div className="flex items-center justify-between mb-2 text-xs">
+                            <span className="font-bold text-[#143e21] uppercase text-[11px]">
+                              Bảng Chi Tiết Tiến Độ Thực Hiện Của Các Cán Bộ Địa Bàn Được Giao:
+                            </span>
+                            <span className="text-slate-500 text-[11px]">
+                              * Cán bộ quá hạn chưa đôn đốc sẽ bị hệ thống khóa cập nhật và ghi nhận "Chưa đôn đốc".
+                            </span>
+                          </div>
+
+                          <div className="overflow-x-auto border border-emerald-200 rounded-xl bg-white shadow-xs">
+                            <table className="w-full text-left text-xs border-collapse">
+                              <thead>
+                                <tr className="bg-[#143e21] text-white font-semibold">
+                                  <th className="p-2 w-10 text-center">STT</th>
+                                  <th className="p-2 min-w-[150px]">Cán Bộ Phụ Trách</th>
+                                  <th className="p-2 min-w-[280px]">Địa Bàn Xã/Phường Được Giao Đôn Đốc</th>
+                                  <th className="p-2 text-center min-w-[120px]">Đánh Giá Tiến Độ</th>
+                                  <th className="p-2 min-w-[200px]">Báo Cáo Tóm Tắt & Minh Chứng</th>
+                                  <th className="p-2 text-center w-24">Thao Tác</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {assignedList.map((officer, oIdx) => {
+                                  const stInfo = computeTaskOfficerStatus(task, officer);
+                                  const isMe = officer.id === currentUser.id;
+                                  const breakdown = stInfo.communeBreakdown || {};
+
+                                  // Danh sách xã cụ thể giao cho cán bộ này trong nhiệm vụ
+                                  const assignedCommunes = task.assignedCommunes?.[officer.id] || officer.communes || [];
+
+                                  return (
+                                    <tr key={officer.id} className={isMe ? 'bg-amber-50/50 font-medium' : 'hover:bg-slate-50'}>
+                                      <td className="p-2 text-center text-slate-400 font-mono">{oIdx + 1}</td>
+                                      <td className="p-2">
+                                        <div className="font-bold text-slate-800">{officer.name} {isMe ? '(Bạn)' : ''}</div>
+                                        <div className="text-[10px] text-slate-500">{officer.rank} • {assignedCommunes.length} địa bàn</div>
+                                      </td>
+                                      <td className="p-2">
+                                        <div className="flex flex-wrap gap-1">
+                                          {assignedCommunes.map((cName, cIdx) => {
+                                            const cInfo = breakdown[cName] || {};
+                                            const isDone = cInfo.status === 'Đã hoàn thành';
+                                            const isInProg = cInfo.status === 'Đang thực hiện';
+                                            return (
+                                              <span
+                                                key={cIdx}
+                                                className={`px-1.5 py-0.5 rounded text-[10px] border ${isDone
+                                                    ? 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold'
+                                                    : isInProg
+                                                      ? 'bg-blue-100 text-blue-950 border-blue-300'
+                                                      : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                  }`}
+                                              >
+                                                {cName}: {isDone ? '✓ Xong' : isInProg ? 'Đang làm' : 'Chưa'}
+                                              </span>
+                                            );
+                                          })}
+                                        </div>
+                                      </td>
+                                      <td className="p-2 text-center">
+                                        <span className={`px-2 py-0.5 rounded-full border text-[11px] ${stInfo.badgeClass}`}>
+                                          {stInfo.status}
+                                        </span>
+                                        {stInfo.isLocked && (
+                                          <span className="block text-[10px] text-red-600 font-bold mt-0.5">
+                                            (Quá hạn - Đã khóa)
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td className="p-2 text-slate-700 text-[11px]">
+                                        {stInfo.submission?.notes ? (
+                                          <p className="line-clamp-2 italic text-slate-800">{stInfo.submission.notes}</p>
+                                        ) : (
+                                          <span className="text-slate-400 italic">Chưa có báo cáo đôn đốc</span>
+                                        )}
+                                        {stInfo.submission?.attachmentName && (
+                                          <span className="text-blue-700 block font-mono text-[10px] mt-0.5">
+                                            📎 {stInfo.submission.attachmentName}
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td className="p-2 text-center whitespace-nowrap">
+                                        {stInfo.isLocked && !isAdmin ? (
+                                          <span className="text-slate-400 italic text-[11px]">🔒 Đã khóa</span>
+                                        ) : (isAdmin || isMe) ? (
+                                          <button
+                                            onClick={() => { setSubTask(task); setSubOfficerId(officer.id); setIsSubModalOpen(true); }}
+                                            className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded border border-emerald-300 text-xs"
+                                          >
+                                            {stInfo.submission?.urgingStatus ? 'Sửa' : 'Cập nhật'}
+                                          </button>
+                                        ) : (
+                                          <span className="text-slate-400 text-xs">-</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </main>
+
+          {/* FOOTER - BẢN QUYỀN: ĐẠI ÚY PHẠM ĐỨC TRUNG */}
+          <footer className="bg-white border-t border-emerald-200 py-3 text-center text-xs text-slate-600 w-full">
+            <div className="w-full px-4 flex flex-col sm:flex-row items-center justify-between gap-1.5">
+              <div className="text-[#143e21] font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <span>Bản quyền: <strong>Đại úy Phạm Đức Trung - Cán bộ Đội 2 phòng PC06</strong></span>
+              </div>
+              <div className="text-slate-400 text-[11px]">
+                Hệ thống Quản lý Văn bản & Đánh giá Đôn đốc Công an cấp xã • PC06 Công an TP Hải Phòng
+              </div>
+            </div>
+          </footer>
+
+          {/* ========== MODALS ========== */}
+
+          {/* Document Modal */}
+          {isDocModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-xs">
+              <div className="bg-white rounded-2xl shadow-xl max-w-xl w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto">
+                <h3 className="text-base font-bold text-slate-900">{editingDoc ? 'Cập Nhật Văn Bản' : 'Tiếp Nhận Văn Bản Mới'}</h3>
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Số / Ký hiệu VB *</label>
+                    <input id="docNumberInput" defaultValue={editingDoc?.docNumber || ''} className="w-full px-3 py-1.5 border rounded-lg text-sm" placeholder="VD: 142/CATP-PC06" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Ngày ban hành VB *</label>
+                    <input id="docDateInput" type="date" defaultValue={editingDoc?.docDate || getTodayDateString()} className="w-full px-3 py-1.5 border rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Trích yếu nội dung *</label>
+                    <textarea id="excerptInput" rows={2} defaultValue={editingDoc?.excerpt || ''} className="w-full px-3 py-1.5 border rounded-lg text-sm" placeholder="Nội dung tóm tắt..." />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold block mb-1">Lĩnh vực *</label>
+                      <select id="categoryInput" defaultValue={editingDoc?.category || categories[0]?.name} className="w-full px-3 py-1.5 border rounded-lg text-sm">
+                        {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">Cán bộ thực hiện *</label>
+                      <select id="officerInput" defaultValue={editingDoc?.officerId || 'cb_1'} className="w-full px-3 py-1.5 border rounded-lg text-sm">
+                        {OFFICERS.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold block mb-1">Ngày nhận *</label>
+                      <input id="receivedDateInput" type="date" defaultValue={editingDoc?.receivedDate || getTodayDateString()} className="w-full px-3 py-1.5 border rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">Thời hạn xử lý (Để trống nếu theo dõi)</label>
+                      <input id="deadlineDateInput" type="date" defaultValue={editingDoc?.deadlineDate || ''} className="w-full px-3 py-1.5 border rounded-lg text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <button onClick={() => setIsDocModalOpen(false)} className="px-4 py-1.5 border rounded-lg text-xs font-bold text-slate-700">Hủy</button>
+                  <button
+                    onClick={() => {
+                      const num = document.getElementById('docNumberInput').value.trim();
+                      const dDate = document.getElementById('docDateInput').value;
+                      const exc = document.getElementById('excerptInput').value.trim();
+                      const cat = document.getElementById('categoryInput').value;
+                      const off = document.getElementById('officerInput').value;
+                      const rec = document.getElementById('receivedDateInput').value;
+                      const dl = document.getElementById('deadlineDateInput').value;
+
+                      if (!num || !exc) { alert('Vui lòng nhập đủ Số hiệu và Trích yếu'); return; }
+
+                      handleSaveDoc({
+                        id: editingDoc?.id || `doc_${Date.now()}`,
+                        docNumber: num,
+                        docDate: dDate,
+                        excerpt: exc,
+                        category: cat,
+                        officerId: off,
+                        receivedDate: rec,
+                        deadlineDate: dl,
+                        isTrackingOnly: !dl,
+                        resultDocNumber: editingDoc?.resultDocNumber || '',
+                        resultDocDate: editingDoc?.resultDocDate || '',
+                        resultExcerpt: editingDoc?.resultExcerpt || ''
+                      });
+                    }}
+                    className="px-4 py-1.5 bg-[#143e21] text-amber-300 rounded-lg text-xs font-bold shadow"
+                  >
+                    Lưu Văn Bản
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Result Modal */}
+          {isResultModalOpen && selectedDocForResult && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-xs">
+              <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-5 space-y-3">
+                <h3 className="text-base font-bold text-slate-900">Cập Nhật Kết Quả Hoàn Thành Văn Bản</h3>
+                <div className="text-xs p-2.5 bg-slate-50 rounded-lg border">
+                  <strong>{selectedDocForResult.docNumber}</strong>: {selectedDocForResult.excerpt}
+                </div>
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Số / Ký hiệu VB kết quả *</label>
+                    <input id="resNum" defaultValue={selectedDocForResult.resultDocNumber || ''} className="w-full px-3 py-1.5 border rounded-lg text-sm" placeholder="VD: 512/BC-PC06" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Ngày ban hành VB kết quả *</label>
+                    <input id="resDate" type="date" defaultValue={selectedDocForResult.resultDocDate || getTodayDateString()} className="w-full px-3 py-1.5 border rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-bold block mb-1">Trích yếu kết quả thực hiện *</label>
+                    <textarea id="resExc" rows={3} defaultValue={selectedDocForResult.resultExcerpt || ''} className="w-full px-3 py-1.5 border rounded-lg text-sm" placeholder="Mô tả kết quả giải quyết..." />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <button onClick={() => setIsResultModalOpen(false)} className="px-4 py-1.5 border rounded-lg text-xs font-bold text-slate-700">Hủy</button>
+                  <button
+                    onClick={() => {
+                      const num = document.getElementById('resNum').value.trim();
+                      const date = document.getElementById('resDate').value;
+                      const exc = document.getElementById('resExc').value.trim();
+                      if (!num || !exc) { alert('Vui lòng điền Số hiệu và Trích yếu kết quả'); return; }
+                      handleSaveDocResult(selectedDocForResult.id, { resultDocNumber: num, resultDocDate: date, resultExcerpt: exc });
+                    }}
+                    className="px-4 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-bold shadow"
+                  >
+                    Xác Nhận Đã Hoàn Thành
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Submission Modal for Officer - LỰA CHỌN TỪNG XÃ HOẶC TẤT CẢ & KHÓA NẾU QUÁ HẠN */}
+          {isSubModalOpen && subTask && subOfficerId && (() => {
+            const officerObj = OFFICERS.find(o => o.id === subOfficerId);
+            const stInfo = officerObj ? computeTaskOfficerStatus(subTask, officerObj) : null;
+            const isLocked = stInfo?.isLocked && !isAdmin;
+            const assignedCommunes = (subTask.assignedCommunes && subTask.assignedCommunes[subOfficerId])
+              ? subTask.assignedCommunes[subOfficerId]
+              : (officerObj?.communes || []);
+            const existingSub = subTask.submissions?.[subOfficerId];
+
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-xs">
+                <div className="bg-white rounded-2xl shadow-xl max-w-xl w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="text-base font-bold text-slate-900">Báo Cáo Tiến Độ Đôn Đốc Công An Cấp Xã</h3>
+                    <button onClick={() => setIsSubModalOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+                  </div>
+
+                  <div className="text-xs p-2.5 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <div className="font-bold text-slate-900">{subTask.title}</div>
+                    <div className="text-slate-600 mt-0.5">Cán bộ: <strong>{officerObj?.name}</strong> ({officerObj?.rank})</div>
+                    <div className="text-emerald-900 font-semibold mt-0.5">
+                      Địa bàn được giao đôn đốc: <strong>{assignedCommunes.join(', ')}</strong> ({assignedCommunes.length} xã/phường)
+                    </div>
+                    <div className="text-slate-500 mt-0.5">Hạn chót: <strong>{formatDateVN(subTask.deadline)}</strong></div>
+                  </div>
+
+                  {/* CẢNH BÁO KHÓA QUÁ HẠN NẾU CHƯA ĐÔN ĐỐC */}
+                  {isLocked && (
+                    <div className="p-3 bg-rose-50 border border-rose-300 rounded-xl text-rose-950 space-y-1">
+                      <div className="font-bold flex items-center gap-1.5 text-xs text-rose-800">
+                        <span>🔒 ĐÃ KHÓA QUYỀN CẬP NHẬT DO QUÁ HẠN</span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed">
+                        Nhiệm vụ này đã quá hạn đôn đốc theo quy định ({formatDateVN(subTask.deadline)}). Cán bộ địa bàn không thể cập nhật, chỉnh sửa kết quả đôn đốc và kết quả đánh giá được ghi nhận trạng thái: <strong className="text-rose-700">Chưa đôn đốc</strong>.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-3 text-xs">
+                    {/* Cập nhật chi tiết từng xã được giao */}
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#143e21] block">Cập nhật tiến độ đôn đốc cho các xã/phường được giao:</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">{assignedCommunes.length} địa bàn</span>
+                      </div>
+
+                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        {assignedCommunes.map((cName, idx) => {
+                          const cData = existingSub?.communeResults?.[cName] || {};
+                          return (
+                            <div key={idx} className="p-2 bg-white rounded border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5">
+                              <span className="font-bold text-slate-800 text-xs">{idx + 1}. {cName}</span>
+                              <div className="flex items-center gap-1.5">
+                                <select
+                                  id={`sub_commune_status_${idx}`}
+                                  defaultValue={cData.status || existingSub?.urgingStatus || 'Đang thực hiện'}
+                                  disabled={isLocked}
+                                  className="px-2 py-1 text-xs border rounded bg-white disabled:bg-slate-100 disabled:text-slate-400"
+                                >
+                                  <option value="Đã hoàn thành">Đã hoàn thành</option>
+                                  <option value="Đang thực hiện">Đang thực hiện</option>
+                                  <option value="Chưa đôn đốc">Chưa đôn đốc</option>
+                                </select>
+                                <input
+                                  id={`sub_commune_notes_${idx}`}
+                                  defaultValue={cData.notes || ''}
+                                  disabled={isLocked}
+                                  placeholder="Ghi chú xã này..."
+                                  className="px-2 py-1 text-[11px] border rounded w-36 disabled:bg-slate-100 disabled:text-slate-400"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-bold block mb-1">Tài liệu đính kèm minh chứng (Biên bản kiểm tra...)</label>
+                      <input
+                        id="subFile"
+                        defaultValue={existingSub?.attachmentName || ''}
+                        disabled={isLocked}
+                        className="w-full px-3 py-1.5 border rounded-lg text-sm disabled:bg-slate-100 disabled:text-slate-400"
+                        placeholder="VD: BienBan_KiemTra.pdf"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">Báo cáo tóm tắt chung toàn địa bàn *</label>
+                      <textarea
+                        id="subNotes"
+                        rows={3}
+                        defaultValue={existingSub?.notes || ''}
+                        disabled={isLocked}
+                        className="w-full px-3 py-1.5 border rounded-lg text-sm disabled:bg-slate-100 disabled:text-slate-400"
+                        placeholder="Tóm tắt tình hình các xã, khó khăn vướng mắc..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2 border-t">
+                    <button onClick={() => setIsSubModalOpen(false)} className="px-4 py-1.5 border rounded-lg text-xs font-bold text-slate-700">Đóng</button>
+                    {isLocked ? (
+                      <button disabled className="px-4 py-1.5 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                        🔒 Đã Khóa - Quá Hạn
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          const file = document.getElementById('subFile').value.trim();
+                          const notes = document.getElementById('subNotes').value.trim();
+                          if (!notes) { alert('Vui lòng nhập báo cáo tóm tắt tình hình địa bàn'); return; }
+
+                          const communeResults = {};
+                          let allDone = true;
+                          assignedCommunes.forEach((cName, idx) => {
+                            const st = document.getElementById(`sub_commune_status_${idx}`)?.value || 'Đang thực hiện';
+                            const nt = document.getElementById(`sub_commune_notes_${idx}`)?.value || '';
+                            communeResults[cName] = { status: st, notes: nt };
+                            if (st !== 'Đã hoàn thành') allDone = false;
+                          });
+
+                          const urgingStatus = allDone ? 'Đã hoàn thành' : 'Đang thực hiện';
+
+                          handleSaveSubmission(subTask.id, subOfficerId, {
+                            mode: 'per_commune',
+                            urgingStatus: urgingStatus,
+                            communeResults: communeResults,
+                            attachmentName: file,
+                            notes: notes,
+                            submittedAt: new Date().toISOString()
+                          });
+                        }}
+                        className="px-4 py-1.5 bg-[#143e21] text-amber-300 rounded-lg text-xs font-bold shadow hover:bg-[#1a4e2a]"
+                      >
+                        Lưu Báo Cáo
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Task Modal (Admin Only) - TÙY BIẾN 21 CÁN BỘ & ĐỊA BÀN PHỤ TRÁCH */}
+          {isTaskModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-xs">
+              <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-5 space-y-3.5 max-h-[92vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-[#143e21] text-amber-300 rounded-lg text-sm">☑️</span>
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">Giao Nhiệm Vụ Đôn Đốc Công An Xã</h3>
+                      <p className="text-[11px] text-slate-500">Phân công linh hoạt theo 21 cán bộ hoặc chọn cụ thể; đôn đốc toàn bộ hoặc 1 số xã</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setIsTaskModalOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold text-sm">✕</button>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1">Tiêu đề nhiệm vụ *</label>
+                    <input id="taskTitle" className="w-full px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-emerald-600" placeholder="VD: Đôn đốc thu nhận hồ sơ Căn cước đợt cao điểm tháng 3..." />
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1">Nội dung chỉ đạo chi tiết *</label>
+                    <textarea id="taskContent" rows={2} className="w-full px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-emerald-600" placeholder="Chỉ đạo các xã rà soát, chỉ tiêu hoàn thành..." />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold block mb-1">Lĩnh vực chuyên môn *</label>
+                      <select id="taskCat" className="w-full px-3 py-1.5 border rounded-lg text-sm bg-white">
+                        {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold block mb-1">Thời hạn chót hoàn thành *</label>
+                      <input id="taskDl" type="date" className="w-full px-3 py-1.5 border rounded-lg text-sm bg-white" />
+                    </div>
+                  </div>
+
+                  {/* 1. PHÂN CÔNG CÁN BỘ ĐỊA BÀN */}
+                  <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200 space-y-2">
+                    <label className="font-bold text-[#143e21] block text-xs">1. Phạm vi Cán bộ địa bàn thực hiện:</label>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
+                        <input
+                          type="radio"
+                          name="assignScopeRadio"
+                          checked={taskAssignScope === 'all'}
+                          onChange={() => setTaskAssignScope('all')}
+                          className="accent-[#143e21]"
+                        />
+                        <span>Giao cho tất cả 21 cán bộ địa bàn</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
+                        <input
+                          type="radio"
+                          name="assignScopeRadio"
+                          checked={taskAssignScope === 'custom'}
+                          onChange={() => {
+                            setTaskAssignScope('custom');
+                            if (taskSelectedOfficers.length === 0) {
+                              setTaskSelectedOfficers(OFFICERS.filter(o => o.role === 'user').map(o => o.id));
+                            }
+                          }}
+                          className="accent-[#143e21]"
+                        />
+                        <span>Chỉ định cụ thể từng cán bộ</span>
+                      </label>
+                    </div>
+
+                    {/* Danh sách chọn từng cán bộ nếu chọn 'custom' */}
+                    {taskAssignScope === 'custom' && (
+                      <div className="mt-2 pt-2 border-t border-emerald-200 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-slate-600 font-semibold">
+                            Đã chọn: <strong>{taskSelectedOfficers.length}</strong> / 21 cán bộ
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setTaskSelectedOfficers(OFFICERS.filter(o => o.role === 'user').map(o => o.id))}
+                              className="text-[11px] text-emerald-800 font-bold hover:underline"
+                            >
+                              Chọn tất cả
+                            </button>
+                            <span className="text-slate-300">|</span>
+                            <button
+                              type="button"
+                              onClick={() => setTaskSelectedOfficers([])}
+                              className="text-[11px] text-rose-700 font-bold hover:underline"
+                            >
+                              Bỏ chọn hết
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 max-h-40 overflow-y-auto p-1 border rounded-lg bg-white">
+                          {OFFICERS.filter(o => o.role === 'user').map(o => {
+                            const isChecked = taskSelectedOfficers.includes(o.id);
+                            return (
+                              <label key={o.id} className={`flex items-center gap-1.5 p-1.5 rounded cursor-pointer border text-[11px] ${isChecked ? 'bg-emerald-50/80 border-emerald-300 font-bold text-emerald-950' : 'border-slate-100 text-slate-700 hover:bg-slate-50'}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => {
+                                    if (isChecked) {
+                                      setTaskSelectedOfficers(taskSelectedOfficers.filter(id => id !== o.id));
+                                    } else {
+                                      setTaskSelectedOfficers([...taskSelectedOfficers, o.id]);
+                                    }
+                                  }}
+                                  className="accent-[#143e21]"
+                                />
+                                <span className="truncate">{o.name}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. PHÂN CÔNG ĐỊA BÀN XÃ/PHƯỜNG ĐÔN ĐỐC */}
+                  <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200 space-y-2">
+                    <label className="font-bold text-blue-950 block text-xs">2. Phạm vi Địa bàn xã/phường đôn đốc:</label>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
+                        <input
+                          type="radio"
+                          name="communeScopeRadio"
+                          checked={taskCommuneScope === 'all_communes'}
+                          onChange={() => setTaskCommuneScope('all_communes')}
+                          className="accent-blue-700"
+                        />
+                        <span>Đôn đốc tất cả địa bàn phụ trách</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
+                        <input
+                          type="radio"
+                          name="communeScopeRadio"
+                          checked={taskCommuneScope === 'custom_communes'}
+                          onChange={() => setTaskCommuneScope('custom_communes')}
+                          className="accent-blue-700"
+                        />
+                        <span>Chỉ định 1 số địa bàn trong số phụ trách</span>
+                      </label>
+                    </div>
+
+                    {/* Chi tiết chọn từng xã của từng cán bộ nếu chọn 'custom_communes' */}
+                    {taskCommuneScope === 'custom_communes' && (() => {
+                      const effectiveOfficers = taskAssignScope === 'all'
+                        ? OFFICERS.filter(o => o.role === 'user')
+                        : OFFICERS.filter(o => taskSelectedOfficers.includes(o.id));
+
+                      return (
+                        <div className="mt-2 pt-2 border-t border-blue-200 space-y-2">
+                          <p className="text-[11px] text-blue-900 font-medium">
+                            Nhấp vào từng đồng chí dưới đây để tích chọn cụ thể các xã/phường cần đôn đốc:
+                          </p>
+
+                          <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                            {effectiveOfficers.map(officer => {
+                              const isExp = expandedCommuneOfficerId === officer.id;
+                              const officerCommunes = officer.communes || [];
+                              const selectedForOff = taskOfficerCommuneMap[officer.id] !== undefined
+                                ? taskOfficerCommuneMap[officer.id]
+                                : officerCommunes;
+
+                              return (
+                                <div key={officer.id} className="border rounded-lg bg-white overflow-hidden">
+                                  <div
+                                    onClick={() => setExpandedCommuneOfficerId(isExp ? null : officer.id)}
+                                    className="p-2 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                                  >
+                                    <div>
+                                      <span className="font-bold text-slate-900 text-xs">{officer.name}</span>
+                                      <span className="text-[11px] text-slate-500 ml-2">
+                                        (Đã chọn: <strong className="text-emerald-700">{selectedForOff.length}</strong>/{officerCommunes.length} xã)
+                                      </span>
+                                    </div>
+                                    <span className="text-xs font-bold text-blue-800">{isExp ? '▲ Thu gọn' : '▼ Chọn xã'}</span>
+                                  </div>
+
+                                  {isExp && (
+                                    <div className="p-2 bg-slate-50/80 border-t space-y-1.5">
+                                      <div className="flex justify-between items-center text-[10px]">
+                                        <span className="text-slate-600 font-semibold">Tích chọn xã cần đôn đốc:</span>
+                                        <div className="flex gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => setTaskOfficerCommuneMap(prev => ({ ...prev, [officer.id]: [...officerCommunes] }))}
+                                            className="text-emerald-800 font-bold hover:underline"
+                                          >
+                                            Chọn tất cả
+                                          </button>
+                                          <span className="text-slate-300">|</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => setTaskOfficerCommuneMap(prev => ({ ...prev, [officer.id]: [] }))}
+                                            className="text-rose-700 font-bold hover:underline"
+                                          >
+                                            Bỏ chọn
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {officerCommunes.map((cName, cIdx) => {
+                                          const isCSelected = selectedForOff.includes(cName);
+                                          return (
+                                            <button
+                                              key={cIdx}
+                                              type="button"
+                                              onClick={() => {
+                                                const updated = isCSelected
+                                                  ? selectedForOff.filter(x => x !== cName)
+                                                  : [...selectedForOff, cName];
+                                                setTaskOfficerCommuneMap(prev => ({ ...prev, [officer.id]: updated }));
+                                              }}
+                                              className={`px-2 py-0.5 rounded text-[11px] border font-medium transition-all ${isCSelected
+                                                  ? 'bg-[#143e21] text-amber-300 border-[#143e21]'
+                                                  : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                              {isCSelected ? '✓ ' : ''}{cName}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <button onClick={() => setIsTaskModalOpen(false)} className="px-4 py-1.5 border rounded-lg text-xs font-bold text-slate-700">Hủy</button>
+                  <button
+                    onClick={() => {
+                      const t = document.getElementById('taskTitle').value.trim();
+                      const c = document.getElementById('taskContent').value.trim();
+                      const cat = document.getElementById('taskCat').value;
+                      const dl = document.getElementById('taskDl').value;
+                      if (!t || !c || !dl) { alert('Vui lòng điền đủ Tiêu đề, Nội dung và Hạn chót'); return; }
+
+                      const areaOfficers = OFFICERS.filter(o => o.role === 'user');
+                      const assignedOfficersList = taskAssignScope === 'all'
+                        ? areaOfficers
+                        : areaOfficers.filter(o => taskSelectedOfficers.includes(o.id));
+
+                      if (assignedOfficersList.length === 0) {
+                        alert('Vui lòng chọn ít nhất một cán bộ địa bàn phụ trách');
+                        return;
+                      }
+
+                      // Bản đồ phân công xã cụ thể
+                      const finalCommuneMap = {};
+                      for (const off of assignedOfficersList) {
+                        if (taskCommuneScope === 'all_communes') {
+                          finalCommuneMap[off.id] = [...off.communes];
+                        } else {
+                          const curSelected = taskOfficerCommuneMap[off.id] !== undefined ? taskOfficerCommuneMap[off.id] : [...off.communes];
+                          if (curSelected.length === 0) {
+                            alert(`Đồng chí ${off.name} chưa được chọn xã nào để đôn đốc. Vui lòng chọn ít nhất 1 xã hoặc bỏ chọn đồng chí này.`);
+                            return;
+                          }
+                          finalCommuneMap[off.id] = curSelected;
+                        }
+                      }
+
+                      handleSaveTask({
+                        id: `task_${Date.now()}`,
+                        title: t,
+                        content: c,
+                        category: cat,
+                        deadline: dl,
+                        assignedToAll: taskAssignScope === 'all',
+                        assignedOfficers: assignedOfficersList.map(o => o.id),
+                        assignedCommunes: finalCommuneMap,
+                        createdAt: getTodayDateString(),
+                        createdByName: `${currentUser.position} ${currentUser.name}`,
+                        submissions: {}
+                      });
+                    }}
+                    className="px-4 py-1.5 bg-[#143e21] text-amber-300 rounded-lg text-xs font-bold shadow hover:bg-[#1a4e2a]"
+                  >
+                    Giao Nhiệm Vụ Đôn Đốc
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Category Modal */}
+          {isCatModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-xs">
+              <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-5 space-y-3">
+                <h3 className="text-base font-bold text-slate-900">Quản Lý Lĩnh Vực Chuyên Môn</h3>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input id="newCatName" placeholder="Tên lĩnh vực mới..." className="flex-1 px-3 py-1.5 border rounded-lg text-xs" />
+                    <button
+                      onClick={() => {
+                        const val = document.getElementById('newCatName').value.trim();
+                        if (!val) return;
+                        if (categories.some(c => c.name.toLowerCase() === val.toLowerCase())) { alert('Lĩnh vực đã có!'); return; }
+                        setCategories([...categories, { id: `cat_${Date.now()}`, name: val, colorClass: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-semibold' }]);
+                        document.getElementById('newCatName').value = '';
+                      }}
+                      className="px-3 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-bold"
+                    >
+                      Thêm
+                    </button>
+                  </div>
+                  <div className="divide-y max-h-56 overflow-y-auto pt-1">
+                    {categories.map(c => (
+                      <div key={c.id} className="py-1.5 flex items-center justify-between text-xs">
+                        <span className={`px-2 py-0.5 rounded border ${c.colorClass}`}>{c.name}</span>
+                        {categories.length > 1 && (
+                          <button onClick={() => setCategories(categories.filter(x => x.id !== c.id))} className="text-red-500 hover:underline">Xóa</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end pt-2 border-t">
+                  <button onClick={() => setIsCatModalOpen(false)} className="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold">Đóng</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+
+</html>
